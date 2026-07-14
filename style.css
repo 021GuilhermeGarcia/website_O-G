@@ -72,3 +72,26 @@ nav a {
 nav a:hover {
     text-decoration: underline;
 }
+
+.comparison {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Reduced from 16px */
+    white-space: nowrap; 
+}
+
+.group {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Reduced from 8px */
+}
+
+select {
+    padding: 2px 4px; 
+    max-width: 120px; 
+}
+
+button {
+    padding: 4px 10px; 
+}
