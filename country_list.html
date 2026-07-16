@@ -10,6 +10,25 @@
 
 <body>
 
+<script type="module" src="country_list.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<label for="mySelect">Choose an option of info:</label>
+
+<select id="mySelect" name="mySelect">
+    <option value="option1">None</option>
+    <option value="option2">Monthly petroleum and other liquids production</option>
+    <option value="option3">Dry natural gas production</option>
+    <option value="option4">Dry natural gas consumption</option>
+    <option value="option5">Dry natural gas production and consumption</option>
+    <option value="option6">Coal production</option>
+    <option value="option7">Coal consumption</option>
+    <option value="option8">Coal production and consumption</option>
+    <option value="option9">Electricity generation</option>
+    <option value="option10">Electricity consumption</option>
+    <option value="option11">Electricity generation and consumption</option>
+</select>
+
 <div class="comparison">
     <div class="group">
         <label>Country:</label>
@@ -17,13 +36,11 @@
             <option>Select Country</option>
         </select>
 
-        <label>Year:</label>
-        <select>
+        <select class="year">
             <option>Select Year</option>
         </select>
 
-        <label>Month:</label>
-        <select>
+        <select class="month">
             <option>Select Month</option>
         </select>
     </div>
@@ -36,18 +53,21 @@
             <option>Select Country</option>
         </select>
 
-        <label>Year:</label>
-        <select>
+        <select class="year">
             <option>Select Year</option>
         </select>
 
-        <label>Month:</label>
-        <select>
+        <select class="month">
             <option>Select Month</option>
         </select>
     </div>
 </div>
 
-<script type="module" src="country_list.js" defer></script>
+<div class="container">
+    <h2>Click the Chart to Change Type</h2>
+    <canvas id="myChart"></canvas>
+</div>
+
+
 </body>
 </html>

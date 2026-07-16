@@ -7,7 +7,7 @@ params = {
     "data[0]": "value",
     "facets[activityId][]": "1",
     "facets[productId][]": "55",
-    "facets[countryRegionId][]": "ALB",
+    "facets[countryRegionId][]": "ARG",
     "facets[unit][]": "TBPD",
     "sort[0][column]": "period",
     "sort[0][direction]": "desc",
