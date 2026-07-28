@@ -79,6 +79,10 @@
             const container = document.getElementById(this.id_container1);
             container.innerHTML = comparisonHTML;
             container.hidden = false;
+
+            this.select_country = document.querySelectorAll(".country");
+            this.select_year = document.querySelectorAll(".year");
+            this.select_month = document.querySelectorAll(".month");
         }
         //idcontainer2 is about to be made
 
@@ -101,18 +105,16 @@
                 }))
                 .sort((a, b) => a.name.localeCompare(b.name));
 
-                const selects = document.querySelectorAll(".country");
-
                 countryDetails.forEach(country => {
-                selects.forEach(select => {
+                this.select_country.forEach(select => {
                     const option = document.createElement("option");
                     option.value = country.iso3;
                     option.textContent = country.name;
                     select.appendChild(option);
                 });
 
-                if (selects.length > 0 && this.countryRegionID) {
-                selects[0].value = this.countryRegionID;
+                if (this.select_country.length > 0 && this.countryRegionID) {
+                this.select_country[0].value = this.countryRegionID;
                 }
             }); 
         });
@@ -249,14 +251,18 @@
                     }
                 });
             }
-        
+
+            console.log("Selected: ", Number(this.date_end.split("-")[0]));
+            yearSelects.forEach(select => {
+                select.value = Number(this.date_end.split("-")[0]);
+            });
         }
 
         populate_month(){
             if (month != ""){
 
-                const selects = document.querySelectorAll(".month");
-                selects.forEach(select => {
+                //const selects = document.querySelectorAll(".month");
+                this.select_month.forEach(select => {
                     for (let i = 1; i <= 12; i++) {
                         const option = document.createElement("option");
                         option.value = i;
@@ -267,10 +273,9 @@
 
                 const yearSelect = document.querySelectorAll(".year")[0];
 
-                for (const select of selects) {
+                for (const select of this.select_month){
                     select.addEventListener("change", () => {
                         
-
                         const selectedOption = select.options[select.selectedIndex];
                         const value = Number(selectedOption.value);
                         const selectedYear = Number(yearSelect.value);
@@ -293,15 +298,21 @@
                         }
                     });
                 }
+                this.select_month.forEach(select => {
+                    select.value = Number(this.date_end.split("-")[1]);
+                });
             }
         }
 
-        
+        populate_container2_by_query_API(){
+            
+
+        }
     }
 
     const s = new Select(
         "container",
-        "",
+        "container2",
         "mySelect",
         "BRA"
     )
