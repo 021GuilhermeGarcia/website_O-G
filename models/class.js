@@ -13,7 +13,7 @@
             this.modify_param_var();
             this.set_API_parameter();
             this.starter_async_fun = this.init();
-            
+            this.populate_container2_by_querying_API();
 
         }
 
@@ -33,45 +33,55 @@
             }
 
             console.log(this.select_option_id.value);
-            const month =
+            const month1 =
             (actual_option.value === "option1" || actual_option.value === "option2")
                 ? `
-                    <select class="month">
+                    <select class="month" id="month1">
                         <option>Select Month</option>
                     </select>
                 `
             : "";
 
-            globalThis.month = month;
+            const month2 =
+            (actual_option.value === "option1" || actual_option.value === "option2")
+                ? `
+                    <select class="month" id="month2">
+                        <option>Select Month</option>
+                    </select>
+                `
+            : "";
+
+            globalThis.month1 = month1;
+            globalThis.month2 = month2;
 
             const comparisonHTML = `
             <div class="comparison">
-                <div class="group">
+                <div>
                     <label>Country:</label>
-                    <select class="country">
+                    <select class="country" id="country1">
                         <option>Select Country</option>
                     </select>
 
-                    <select class="year">
-                        <option>Select Year</option>
+                    <select class="year" id="year1">
+                        <option>r</option>
                     </select>
 
-                    ${month}
+                    ${month1}
                 </div>
 
                 <button>Compare</button>
 
-                <div class="group">
+                <div>
                     <label>Country:</label>
-                    <select class="country">
+                    <select  class="country" id="country2">
                         <option>Select Country</option>
                     </select>
 
-                    <select class="year">
+                    <select class="year" id="year2">
                         <option>Select Year</option>
                     </select>
 
-                    ${month}  
+                    ${month2}
                 </div>
             </div>
             `;
@@ -257,12 +267,21 @@
                 select.value = Number(this.date_end.split("-")[0]);
             });
         }
-
+        
         populate_month(){
-            if (month != ""){
+            if (month1 != "" && month2 != ""){
 
-                //const selects = document.querySelectorAll(".month");
                 this.select_month.forEach(select => {
+
+                select.innerHTML = "";
+
+                const defaultOption = document.createElement("option");
+                defaultOption.textContent = "Select Month";
+                defaultOption.value = "";
+                defaultOption.selected = true;
+                defaultOption.disabled = true;
+                select.appendChild(defaultOption);
+
                     for (let i = 1; i <= 12; i++) {
                         const option = document.createElement("option");
                         option.value = i;
@@ -271,14 +290,12 @@
                     }
                 });
 
-                const yearSelect = document.querySelectorAll(".year")[0];
-
                 for (const select of this.select_month){
                     select.addEventListener("change", () => {
                         
                         const selectedOption = select.options[select.selectedIndex];
                         const value = Number(selectedOption.value);
-                        const selectedYear = Number(yearSelect.value);
+                        const selectedYear = Number(this.select_year.value);
 
                         console.log(selectedYear);
 
@@ -287,7 +304,7 @@
                         }
                         
                         if (selectedYear === Number(this.date_end.split("-")[0]) && value > Number(this.date_end.split("-")[1])){
-                            console.log("Condition entered");
+                            
                             for (const option of select.options){
                                 const optionValue = Number(option.value);
                                 if (optionValue > Number(this.date_end.split("-")[1]) && !option.textContent.endsWith("❌")) {
@@ -304,9 +321,38 @@
             }
         }
 
-        populate_container2_by_query_API(){
+        populate_container2_by_querying_API(last_one = false){
+            const count = document.querySelectorAll(".country").length;
             
+            for (let x=1; x<=count; x++){
+                console.log("Entered"); // It works
+                console.log(document.getElementById(`country${x}`));// It works
+                document.getElementById(`country${x}`).addEventListener("change", () => {
+                    
+                    console.log("Entered2");
+                    const country = document.getElementById(`country${x}`);
+                    const year = document.getElementById(`year${x}`);
+                    const month = document.getElementById(`month${x}`);
+                    
+                    console.log("country.value: ",country.value);
+                    console.log("year.value: ",year.value);
+                    console.log("month.value: ",month.value);
 
+                    if (month1 != ""){
+                        if (country.value != "Select Country"  && year.value != "" && month.value != ""){
+                            console.log("Condition entered");
+                            
+                        }
+                    else{
+                        if (country.value != "Select Country"  && year.value != ""){
+                            console.log("Condition entered");
+
+                        }
+                    }
+                    }
+                })
+            }
+            
         }
     }
 
