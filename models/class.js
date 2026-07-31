@@ -12,8 +12,9 @@
             this.populate_country();
             this.modify_param_var();
             this.set_API_parameter();
-            this.starter_async_fun = this.init();
-            this.populate_container2_by_querying_API();
+            this.starter_async_fun = this.init().then(() => {
+                this.populate_container2_by_querying_API();
+            });
 
         }
 
@@ -322,14 +323,35 @@
         }
 
         populate_container2_by_querying_API(last_one = false){
+            
             const count = document.querySelectorAll(".country").length;
             
             for (let x=1; x<=count; x++){
-                console.log("Entered"); // It works
+                console.log("country.value: ",country1.value);
+                console.log("year.value: ",year1.value);
+                console.log("month.value: ",month1.value);
+
+                const country = document.getElementById(`country${x}`);
+                const year = document.getElementById(`year${x}`);
+                const month = document.getElementById(`month${x}`);
+
+                if (month1 != ""){
+                        if (country.value != "Select Country"  && year.value != "" && month.value != ""){
+                            //console.log("Condition entered 45");
+                            this.modify_param_var();
+                            
+                        }
+                    else{
+                        if (country.value != "Select Country"  && year.value != ""){
+                            //console.log("Condition entered 45");
+
+                        }
+                    }
+                }
+
                 console.log(document.getElementById(`country${x}`));// It works
                 document.getElementById(`country${x}`).addEventListener("change", () => {
                     
-                    console.log("Entered2");
                     const country = document.getElementById(`country${x}`);
                     const year = document.getElementById(`year${x}`);
                     const month = document.getElementById(`month${x}`);
@@ -340,12 +362,12 @@
 
                     if (month1 != ""){
                         if (country.value != "Select Country"  && year.value != "" && month.value != ""){
-                            console.log("Condition entered");
+                            console.log("Condition entered2");
                             
                         }
                     else{
                         if (country.value != "Select Country"  && year.value != ""){
-                            console.log("Condition entered");
+                            console.log("Condition entered2");
 
                         }
                     }
