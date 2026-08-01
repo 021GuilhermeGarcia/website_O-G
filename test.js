@@ -1,72 +1,47 @@
 async function getEIABarrelsForPeriod(targetPeriod) {
-    const apiKey = 'TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy';
-    
-    // EIA API v2 endpoint for international petroleum data
-    const url = `https://api.eia.gov/v2/international/data/?api_key=${apiKey}`;
+    const apiKey = "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy";
 
-    // Your query parameters
-    const params = {
-        "frequency": "monthly",
-        "data": [
-            "value"
-        ],
-        "facets": {
-            "activityId": [
-                "1"
-            ],
-            "productId": [
-                "53"
-            ],
-            "countryRegionId": [
-                "WORL"
-            ],
-            "unit": [
-                "TBPD"
-            ]
-        },
-        "start": null,
-        "end": null,
-        "sort": [
-            {
-                "column": "period",
-                "direction": "desc"
-            }
-        ],
-        "offset": 0,
-        "length": 5000
-    };
+    const params = new URLSearchParams({
+        api_key: apiKey,
+        frequency: "monthly",
+        "data[0]": "value",
+        "facets[activityId][]": "1",
+        "facets[productId][]": "53",
+        "facets[countryRegionId][]": "WORL",
+        "facets[unit][]": "TBPD",
+        "sort[0][column]": "period",
+        "sort[0][direction]": "desc",
+        length: "5000"
+    });
+
+    const url = `https://api.eia.gov/v2/international/data/?${params}`;
 
     try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'X-Params': JSON.stringify(params),
-                'Accept': 'application/json'
-            }
-        });
+        const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error(`HTTP Error! Status: ${response.status} - ${response.statusText}`);
+            throw new Error(`${response.status} ${response.statusText}`);
         }
 
         const result = await response.json();
-        const records = result.response?.data || [];
 
-        // Find the record for the specific period (e.g., '2026-03')
-        const targetRecord = records.find(item => item.period === targetPeriod);
+        console.log(result);
 
-        if (targetRecord) {
-            console.log(`Period: ${targetRecord.period}`);
-            console.log(`Value: ${targetRecord.value} ${targetRecord.unit || 'TBPD'}`);
-            return targetRecord.value;
-        } else {
-            console.log(`No data found for period: ${targetPeriod}`);
+        const records = result.response?.data ?? [];
+
+        const record = records.find(r => r.period === targetPeriod);
+
+        if (!record) {
+            console.log("No record found.");
             return null;
         }
-    } catch (error) {
-        console.error('Error fetching data from EIA API:', error.message);
+
+        console.log(record);
+
+        return record.value;
+    } catch (err) {
+        console.error(err);
     }
 }
 
-// Execute the request for 2026-03
-getEIABarrelsForPeriod('2026-03');
+getEIABarrelsForPeriod("2026-03");

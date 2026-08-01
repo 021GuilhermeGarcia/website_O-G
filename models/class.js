@@ -10,11 +10,12 @@
             this.date_end;
             this.populate_container1_by_creating_html();
             this.populate_country();
-            this.modify_param_var();
+            //TODO verificar se esse comentario abaixo 
+            //this.modify_param_var();
             this.set_API_parameter();
             this.starter_async_fun = this.init().then(() => {
                 this.populate_container2_by_querying_API();
-            });
+            }); 
 
         }
 
@@ -164,7 +165,7 @@
                 case 'option6':
                     this.modify_param_var("annual", "2", "26",this.countryRegionID,"BCF");
                     break;
-                case 'option8':
+                case 'option8'://
                     this.modify_param_var("annual", "1", "7",this.countryRegionID, "TST");
                     break;
                 case 'option9':
@@ -181,7 +182,7 @@
             
         }
         
-        async define_first_and_last_date_API() {
+        async define_first_and_last_date_API(){
             try {
                 const param = new URLSearchParams(this.param);
 
@@ -218,6 +219,44 @@
             }
         }
 
+        async extract_quantity_and_unit_of_resources(targetPeriod){
+
+            const apiKey = "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy";
+
+            const params = new URLSearchParams(this.param);
+
+            //TODO ver se o parâmetro this.param se encaixa aqui
+            const url = `https://api.eia.gov/v2/international/data/?${params}`;
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                console.log(result);
+
+                const records = result.response?.data ?? [];
+
+                const record = records.find(r => r.period === targetPeriod);
+
+                if (!record) {
+                    console.log("No record found.");
+                    return null;
+                }
+
+                console.log(record);
+
+                //return record.value;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+
         populate_year(){
 
             const currentYear = new Date().getFullYear();
@@ -246,7 +285,6 @@
                 select.addEventListener("change", () => {
                     const selectedOption = select.options[select.selectedIndex];
                     const value = Number(selectedOption.value);
-                    
                     
                     /*if (value > Number(this.date_end.split("-")[0])) {
                         alert("No data available");
@@ -321,12 +359,13 @@
                 });
             }
         }
-
+        
         populate_container2_by_querying_API(last_one = false){
             
             const count = document.querySelectorAll(".country").length;
             
             for (let x=1; x<=count; x++){
+                console.log(x);
                 console.log("country.value: ",country1.value);
                 console.log("year.value: ",year1.value);
                 console.log("month.value: ",month1.value);
@@ -335,21 +374,25 @@
                 const year = document.getElementById(`year${x}`);
                 const month = document.getElementById(`month${x}`);
 
+                console.log(month1 != "", `month1 value: ${month1}`);
+
                 if (month1 != ""){
-                        if (country.value != "Select Country"  && year.value != "" && month.value != ""){
-                            //console.log("Condition entered 45");
-                            this.modify_param_var();
-                            
-                        }
-                    else{
-                        if (country.value != "Select Country"  && year.value != ""){
-                            //console.log("Condition entered 45");
-
-                        }
+                    if (country.value != "Select Country"  && year.value != "" && month.value != ""){
+                        //console.log("Condition of container entered");
+                        this.extract_quantity_and_unit_of_resources(this.date_end);
+                        
                     }
-                }
+                } else {
+                    if (country.value != "Select Country"  && year.value != ""){
+                        console.log("Condition of container entered ");
+                        //this.extract_quantity_and_unit_of_resources(this.date_end);
+                        this.extract_quantity_and_unit_of_resources(this.date_end);
+                    
+                    }
+                    }
+                
 
-                console.log(document.getElementById(`country${x}`));// It works
+                //console.log(document.getElementById(`country${x}`));// It works
                 document.getElementById(`country${x}`).addEventListener("change", () => {
                     
                     const country = document.getElementById(`country${x}`);
@@ -374,9 +417,10 @@
                     }
                 })
             }
-            
         }
+            
     }
+    
 
     const s = new Select(
         "container",
