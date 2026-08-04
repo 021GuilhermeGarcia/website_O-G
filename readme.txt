@@ -1,0 +1,1 @@
+In case of not having data in the select, change to the closer to current year.
