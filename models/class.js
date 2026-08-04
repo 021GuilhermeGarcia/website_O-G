@@ -11,10 +11,10 @@
             this.populate_container1_by_creating_html();
             this.populate_country();
             //TODO verificar se esse comentario abaixo 
-            //this.modify_param_var();
+            this.modify_param_var();
             this.set_API_parameter();
             this.starter_async_fun = this.init().then(() => {
-                //this.populate_container2_by_querying_API();
+                this.populate_container2_by_querying_API();
             }); 
 
         }
@@ -157,26 +157,29 @@
                     this.modify_param_var("monthly", "1", "53", "TBPD");
                     break;
                 case 'option3':
-                    this.modify_param_var("annual", "2", "5", "TBPD");
+                    this.modify_param_var("annual", "1", "54", "TBPD");
                     break;
                 case 'option5':
                     this.modify_param_var("annual", "1", "26", "BCF");
                     break;
                 case 'option6':
-                    this.modify_param_var("annual", "2", "26", "BCF");
+                    this.modify_param_var("annual", "1", "26", "BCF");
                     break;
                 case 'option8'://
-                    this.modify_param_var("annual", "1", "7", "TST");
+                    this.modify_param_var("annual", "2", "26", "TST");
                     break;
                 case 'option9':
-                    this.modify_param_var("annual", "2", "7", "TST");
+                    this.modify_param_var("annual", "1", "7", "TST");
                     break;
                 case 'option11':
-                    this.modify_param_var("annual", "12", "2", "BKWH");
+                    this.modify_param_var("annual", "2", "7", "BKWH");
                     break;
                 case 'option12':
-                    this.modify_param_var("annual", "2", "2", "BKWH");
+                    this.modify_param_var("annual", "12", "2", "BKWH");
                     break;
+                case 'option13':
+                    this.modify_param_var("annual", "2", "2", "BKWH");
+
 
             }
             
@@ -184,6 +187,7 @@
         
         async define_first_and_last_date_API(){
             try {
+                this.param["facets[countryRegionId][]"] = this.countryRegionID;
                 const param = new URLSearchParams(this.param);
 
                 const res = await fetch(`${this.url}?${param.toString()}`);
@@ -219,6 +223,43 @@
             }
         }
 
+        async extract_quantity_and_unit_of_resources(countryIsoId, targetPeriod){
+
+            this.param["facets[countryRegionId][]"] = countryIsoId;
+
+            const apiKey = "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy";
+
+            const params = new URLSearchParams(this.param);
+
+            //TODO ver se o parâmetro this.param se encaixa aqui
+            const url = `https://api.eia.gov/v2/international/data/?${params}`;
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                const records = result.response?.data ?? [];
+
+                const record = records.find(r => r.period === targetPeriod);
+
+                if (!record) {
+                    console.log("No record found.");
+                    return null;
+                }
+
+                console.log(record);
+
+                //return record.value;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
         populate_year(){
 
             const currentYear = new Date().getFullYear();
@@ -234,6 +275,8 @@
                 defaultOption.disabled = true;
                 select.appendChild(defaultOption);
 
+
+                console.log("Printing:", this.date_beginning);
                 for (let year = currentYear; year >= Number(this.date_beginning.split("-")[0]); year--){
                     const option = document.createElement("option");
                     option.value = year;
@@ -291,95 +334,63 @@
                 }
                 });
 
-                for (const select of this.select_month){
+                this.select_month.forEach((select, index) => {
+
                     select.addEventListener("change", () => {
-                        
-                        const selectedOption = select.options[select.selectedIndex];
-                        const value = Number(selectedOption.value);
-                        const selectedYear = Number(this.select_year.value);
+
+                        const value = Number(select.value);
+
+                        const selectedYear = Number(this.select_year[index].value);
 
                         console.log(selectedYear);
 
-                        if (value > Number(this.date_end.split("-")[0])) {
-                            alert("No data available.");
-                        }
-                        
-                        if (selectedYear === Number(this.date_end.split("-")[0]) && value > Number(this.date_end.split("-")[1])){
-                            
-                            for (const option of select.options){
-                                const optionValue = Number(option.value);
-                                if (optionValue > Number(this.date_end.split("-")[1]) && !option.textContent.endsWith("❌")) {
-                                    option.textContent += " ❌";
-                                }   
+                        if (
+                            selectedYear === Number(this.date_end.split("-")[0]) &&
+                            value > Number(this.date_end.split("-")[1])
+                        ) {
 
+                            for (const option of select.options) {
+                                const optionValue = Number(option.value);
+
+                                if (
+                                    optionValue > Number(this.date_end.split("-")[1]) &&
+                                    !option.textContent.endsWith("❌")
+                                ) {
+                                    option.textContent += " ❌";
+                                }
                             }
                         }
                     });
-                }
+                });
                 this.select_month.forEach(select => {
                     select.value = Number(this.date_end.split("-")[1]);
                 });
             }
         }
-        
-        async extract_quantity_and_unit_of_resources(countryIsoId, targetPeriod){
-
-            this.param["facets[countryRegionId][]"] = countryIsoId;
-
-            const apiKey = "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy";
-
-            const params = new URLSearchParams(this.param);
-
-            //TODO ver se o parâmetro this.param se encaixa aqui
-            const url = `https://api.eia.gov/v2/international/data/?${params}`;
-
-            try {
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    throw new Error(`${response.status} ${response.statusText}`);
-                }
-
-                const result = await response.json();
-
-                const records = result.response?.data ?? [];
-
-                const record = records.find(r => r.period === targetPeriod);
-
-                if (!record) {
-                    console.log("No record found.");
-                    return null;
-                }
-
-                console.log(record);
-
-                //return record.value;
-            } catch (err) {
-                console.error(err);
-            }
-        }
 
         populate_container2_by_querying_API(populate_only_last_one = false){
+            const self = this;
             function listener(actual_select){
                 let period;
                 if (document.getElementById(`country${actual_select}`).value != "Select Country"){
                     console.log(document.getElementById(`year${actual_select}`));
 
                     const year = document.getElementById(`year${actual_select}`).value;
-                    const month = document.getElementById(`month${actual_select}`).value;
                     
-                    
-                    if (document.getElementById(`month${actual_select}`) == null){
-                        period = year;
-                
+                    if (document.getElementById(`month${actual_select}`) != null){
+                        const month = document.getElementById(`month${actual_select}`).value;
+                        period = `${year}-${String(month).padStart(2, "0")}`;
+                        
                     } else {
-                        period = `${year}-${month}`;
+                        period = year;
                     
                     }
                     console.log(period);
                 }
 
-                extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value, period);
+                console.log(document.getElementById(`country${actual_select}`).value);
+                console.log(period);
+                self.extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value, period);
 
             }
 
@@ -396,6 +407,7 @@
                 if (month1 != ""){
                     console.log("month1 exists, therefore entered.");
                     document.getElementById(`month${actual_select}`).addEventListener("change", () => {
+                        console.log("entered month");
                         listener(actual_select);
                     
                     })
