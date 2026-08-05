@@ -319,11 +319,7 @@
                     }
                 });
             }
-
-            console.log("Selected: ", Number(this.date_end.split("-")[0]));
-            yearSelects.forEach(select => {
-                select.value = Number(this.date_end.split("-")[0]);
-            });
+            
         }
         
         populate_month(){
@@ -375,9 +371,6 @@
                             }
                         }
                     });
-                });
-                this.select_month.forEach(select => {
-                    select.value = Number(this.date_end.split("-")[1]);
                 });
             }
         }
