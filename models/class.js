@@ -11,7 +11,7 @@
             this.populate_container1_by_creating_html();
             this.populate_country();
             //TODO verificar se esse comentario abaixo 
-            this.modify_param_var();
+            // this.modify_param_var();
             this.set_API_parameter();
             this.starter_async_fun = this.init().then(() => {
                 this.populate_container2_by_querying_API();
@@ -265,7 +265,8 @@
                     return null;
                 }
 
-                console.log(record);
+                console.log(`${record.value} ${record.unit}`);
+                return `${record.value} ${record.unit}`;
 
                 //return record.value;
             } catch (err) {
@@ -383,7 +384,7 @@
 
         populate_container2_by_querying_API(populate_only_last_one = false){
             const self = this;
-            function listener(actual_select){
+            async function listener(actual_select){
                 let period;
                 if (document.getElementById(`country${actual_select}`).value != "Select Country"){
                     console.log(document.getElementById(`year${actual_select}`));
@@ -403,8 +404,18 @@
 
                 console.log(document.getElementById(`country${actual_select}`).value);
                 console.log(period);
-                self.extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value, period);
 
+                const data = await self.extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value,period);
+
+                let info = document.getElementById(`info${actual_select}`);
+
+                if (!info) {
+                    info = document.createElement("div"); // or "span"
+                    info.id = `info${actual_select}`;
+                    document.getElementById(self.id_container2).appendChild(info);
+                }
+
+                info.textContent = data;
             }
 
             function set_listeners_for_selects(actual_select){
