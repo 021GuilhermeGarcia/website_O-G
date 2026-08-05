@@ -159,26 +159,39 @@
                 case 'option3':
                     this.modify_param_var("annual", "1", "54", "TBPD");
                     break;
+                case 'option4':
+                    this.modify_param_var("annual", "2", "54", "TBPD");
+                    break;
                 case 'option5':
+                    // production and consumption
+                    break;
+                case 'option6'://
                     this.modify_param_var("annual", "1", "26", "BCF");
                     break;
-                case 'option6':
-                    this.modify_param_var("annual", "1", "26", "BCF");
+                case 'option7':
+                    this.modify_param_var("annual", "2", "26", "BCF");
                     break;
-                case 'option8'://
-                    this.modify_param_var("annual", "2", "26", "TST");
+                case 'option8':
+                    // production and consumption
                     break;
                 case 'option9':
                     this.modify_param_var("annual", "1", "7", "TST");
                     break;
+                case 'option10':
+                    this.modify_param_var("annual", "2", "7", "TST");
+                    break;
                 case 'option11':
-                    this.modify_param_var("annual", "2", "7", "BKWH");
+                    // production and consumption
                     break;
                 case 'option12':
                     this.modify_param_var("annual", "12", "2", "BKWH");
                     break;
                 case 'option13':
                     this.modify_param_var("annual", "2", "2", "BKWH");
+                    break;
+                case 'option14':
+                    // production and consumption
+                    break;
 
 
             }
