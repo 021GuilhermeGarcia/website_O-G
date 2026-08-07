@@ -382,7 +382,7 @@
                         //TODO testar essa condição abaixo
                         if (selectedYear > Number(this.date_end.split("-")[0])){
                             console.log("greater than");
-                            for (const option of select.options) {
+                            for (const option of select.options){
                                 const optionValue = Number(option.value);
 
                                 if (!option.textContent.endsWith("❌")){
@@ -392,8 +392,9 @@
                         } else if (selectedYear === Number(this.date_end.split("-")[0])){
 
                             const selectedMonth = this.select_month[index].selectedOptions[0].textContent;
+                            const selectedCountry = this.select_country[index].selectedOptions[0].textContent;
 
-                            if (selectedMonth != "Select Month" && 
+                            if (selectedCountry != "Select Country" && selectedMonth != "Select Month" && 
                                 Number(selectedMonth) > Number(this.date_end.split("-")[1]) 
                                 && !selectedMonth.endsWith("❌") ){
 
@@ -412,7 +413,7 @@
                                         console.log("entered X");
                                         option.textContent += " ❌";
                                     }
-                                    }
+                                }
                                 
                             }                            
                         }else{
@@ -427,6 +428,34 @@
                         }
                     })
                 })
+
+                this.select_country.forEach((select, index) => {
+                    select.addEventListener("change", () => {
+                    const selectedCountry = this.select_country[index].selectedOptions[0].textContent;
+                    const selectedYear = this.select_year[index].selectedOptions[0].textContent;
+                    const selectedMonth = this.select_month[index].selectedOptions[0].textContent;
+
+                    if (selectedCountry != "Select" && selectedYear != "Select" && selectedMonth != "Select" && Number(selectedMonth) >  this.date_end.split("-")[1]){
+                        console.log("Entered listener for country");
+                        for (const option of this.select_month[index]) {
+                            const optionValue = option.value;
+
+                            console.log(optionValue);
+                            if (
+                                optionValue != "Select Month" && 
+                                Number(optionValue) > Number(this.date_end.split("-")[1]) &&
+                                !option.textContent.endsWith("❌")
+                            ){
+                                
+                                console.log("entered X");
+                                option.textContent += " ❌";
+                            }
+                        }
+                    }  
+                })
+                });
+                
+
             }
         }
 
@@ -435,7 +464,13 @@
             async function listener(actual_select){
                 let period;
                 //if (document.getElementById(`country${actual_select}`).value != "Select Country"){
+                let country_id= document.getElementById(`country${actual_select}`);
+                let year_id = document.getElementById(`year${actual_select}`);
+                let month_id = document.getElementById(`month${actual_select}`);
+
                 console.log("text content",document.getElementById(`country${actual_select}`).selectedOptions[0].textContent);
+                console.log("text content",document.getElementById(`year${actual_select}`).selectedOptions[0].textContent);
+                console.log("text content",document.getElementById(`month${actual_select}`).selectedOptions[0].textContent);
 
                 if (document.getElementById(`country${actual_select}`).selectedOptions[0].textContent != "Select Country"){
                     console.log(`country${actual_select}`, document.getElementById(`country${actual_select}`).selectedOptions[0].textContent)
@@ -454,9 +489,29 @@
                     console.log(period);
                 }
 
-                console.log();
-                const data = await self.extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value,period);
+                let data;
 
+                const notSelected = [country_id, year_id, month_id].filter(
+                    element => element.selectedOptions[0].textContent.startsWith("Select")  
+                );
+
+                if (notSelected.length >= 1) {
+                    const names = notSelected.map(element => element.className);
+
+                    const data = "Not selected: " + (
+                        names.length === 1
+                            ? names[0]
+                            : names.length === 2
+                            ? names.join(" and ")
+                            : names.slice(0, -1).join(", ") + ", and " + names.at(-1)
+                    );
+
+                    console.log(data);
+                }else{
+                    data = await self.extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value,period);
+                    console.log(data);
+                }
+                
                 let info = document.getElementById(`info${actual_select}`);
 
                 if (!info) {
@@ -465,6 +520,7 @@
                     document.getElementById(self.id_container2).appendChild(info);
                 }
 
+                console.log(data);
                 info.textContent = data;
             }
 
@@ -481,7 +537,6 @@
                 })
 
                 if (month1 != ""){
-                    
                     document.getElementById(`month${actual_select}`).addEventListener("change", () => {
                         console.log(`month${actual_select}`);
                         listener(actual_select);
@@ -493,6 +548,7 @@
             const count = document.querySelectorAll(".country").length;
             
             for (let x=1; x<=count; x++){
+                console.log("x",x);
                 set_listeners_for_selects(x);
                 
             }
