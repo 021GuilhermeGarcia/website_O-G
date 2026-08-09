@@ -461,6 +461,19 @@
 
         populate_container2_by_querying_API(populate_only_last_one = false){
             const self = this; //
+
+            const count = document.querySelectorAll(".country").length;
+            let data;
+            for (let x = 1; x <= count; x++){
+                let info = document.getElementById(`info${x}`);
+
+                if (!info) {
+                    info = document.createElement("div");
+                    info.id = `info${x}`;
+                    document.getElementById(self.id_container2).appendChild(info);
+                }
+            }
+
             async function listener(actual_select){
                 let period;
                 //if (document.getElementById(`country${actual_select}`).value != "Select Country"){
@@ -474,8 +487,6 @@
 
                 if (document.getElementById(`country${actual_select}`).selectedOptions[0].textContent != "Select Country"){
                     console.log(`country${actual_select}`, document.getElementById(`country${actual_select}`).selectedOptions[0].textContent)
-                    //console.log(document.getElementById(`year${actual_select}`));
-
                     const year = document.getElementById(`year${actual_select}`).value;
                     
                     if (document.getElementById(`month${actual_select}`) != null){
@@ -489,8 +500,6 @@
                     console.log(period);
                 }
 
-                let data;
-
                 const notSelected = [country_id, year_id, month_id].filter(
                     element => element.selectedOptions[0].textContent.startsWith("Select")  
                 );
@@ -498,7 +507,7 @@
                 if (notSelected.length >= 1) {
                     const names = notSelected.map(element => element.className);
 
-                    const data = "Not selected: " + (
+                    data = "Not selected: " + (
                         names.length === 1
                             ? names[0]
                             : names.length === 2
@@ -509,19 +518,11 @@
                     console.log(data);
                 }else{
                     data = await self.extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value,period);
-                    console.log(data);
-                }
-                
-                let info = document.getElementById(`info${actual_select}`);
-
-                if (!info) {
-                    info = document.createElement("div"); // or "span"
-                    info.id = `info${actual_select}`;
-                    document.getElementById(self.id_container2).appendChild(info);
+                    //console.log(data);
                 }
 
-                console.log(data);
-                info.textContent = data;
+                console.log("gg",data);
+                document.getElementById(`info${actual_select}`).textContent = data;
             }
 
             function set_listeners_for_selects(actual_select){
@@ -545,7 +546,7 @@
                 }
             }
             
-            const count = document.querySelectorAll(".country").length;
+            
             
             for (let x=1; x<=count; x++){
                 console.log("x",x);
