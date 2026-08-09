@@ -2,6 +2,7 @@
         constructor(id_container1, id_container2, select_option_id, countryRegionID ){
             this.id_container1 = id_container1;
             this.id_container2 = id_container2;
+            this.id_container3 = id_container3;
             this.countryRegionID = countryRegionID;
             this.select_option_id = select_option_id;
             this.url = "https://api.eia.gov/v2/international/data/";
