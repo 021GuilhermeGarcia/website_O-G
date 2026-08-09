@@ -460,13 +460,13 @@
         }
 
         populate_container2_by_querying_API(populate_only_last_one = false){
-            const self = this;
+            const self = this; //
             async function listener(actual_select){
                 let period;
                 //if (document.getElementById(`country${actual_select}`).value != "Select Country"){
                 let country_id= document.getElementById(`country${actual_select}`);
                 let year_id = document.getElementById(`year${actual_select}`);
-                let month_id = document.getElementById(`month${actual_select}`);
+                let month_id = document.getElementById(`month${actual_select}`); 
 
                 console.log("text content",document.getElementById(`country${actual_select}`).selectedOptions[0].textContent);
                 console.log("text content",document.getElementById(`year${actual_select}`).selectedOptions[0].textContent);
