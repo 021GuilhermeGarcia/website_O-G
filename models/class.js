@@ -1,5 +1,5 @@
     class Select{
-        constructor(id_container1, id_container2, select_option_id, countryRegionID ){
+        constructor(id_container1, id_container2, id_container3, select_option_id, countryRegionID ){
             this.id_container1 = id_container1;
             this.id_container2 = id_container2;
             this.id_container3 = id_container3;
@@ -17,6 +17,7 @@
             this.set_API_parameter();
             this.starter_async_fun = this.init().then(() => {
                 this.populate_container2_by_querying_API();
+                this.populate_container3_graph();
             }); 
 
         }
@@ -261,8 +262,6 @@
                 const record = records.find(r => r.period === targetPeriod);
 
                 if (!record) {
-                    console.log("countryIsoId: ", countryIsoId);
-                    console.log("targetPeriod: ",targetPeriod);
                     
                     if (targetPeriod === undefined){
                         return "Select year and month";
@@ -382,7 +381,6 @@
                         
                         //TODO testar essa condição abaixo
                         if (selectedYear > Number(this.date_end.split("-")[0])){
-                            console.log("greater than");
                             for (const option of select.options){
                                 const optionValue = Number(option.value);
 
@@ -398,27 +396,21 @@
                             if (selectedCountry != "Select Country" && selectedMonth != "Select Month" && 
                                 Number(selectedMonth) > Number(this.date_end.split("-")[1]) 
                                 && !selectedMonth.endsWith("❌") ){
-
-                                console.log("All three entered");
                                 
                                 for (const option of this.select_month[index]) {
                                     const optionValue = option.value;
-
-                                    console.log(optionValue);
                                     if (
                                         optionValue != "Select Month" && 
                                         Number(optionValue) > Number(this.date_end.split("-")[1]) &&
                                         !option.textContent.endsWith("❌")
                                     ){
                                         
-                                        console.log("entered X");
                                         option.textContent += " ❌";
                                     }
                                 }
                                 
                             }                            
                         }else{
-                            console.log("less than");
                             for (const option of this.select_month[index]) {
                                 const optionValue = Number(option.value);
 
@@ -437,18 +429,15 @@
                     const selectedMonth = this.select_month[index].selectedOptions[0].textContent;
 
                     if (selectedCountry != "Select" && selectedYear != "Select" && selectedMonth != "Select" && Number(selectedMonth) >  this.date_end.split("-")[1]){
-                        console.log("Entered listener for country");
                         for (const option of this.select_month[index]) {
                             const optionValue = option.value;
 
-                            console.log(optionValue);
                             if (
                                 optionValue != "Select Month" && 
                                 Number(optionValue) > Number(this.date_end.split("-")[1]) &&
                                 !option.textContent.endsWith("❌")
                             ){
                                 
-                                console.log("entered X");
                                 option.textContent += " ❌";
                             }
                         }
@@ -461,7 +450,7 @@
         }
 
         populate_container2_by_querying_API(populate_only_last_one = false){
-            const self = this; //
+            const self = this;
 
             const count = document.querySelectorAll(".country").length;
             let data;
@@ -470,7 +459,9 @@
 
                 if (!info) {
                     info = document.createElement("div");
+                    info.className = "info";
                     info.id = `info${x}`;
+
                     document.getElementById(self.id_container2).appendChild(info);
                 }
             }
@@ -487,7 +478,6 @@
                 console.log("text content",document.getElementById(`month${actual_select}`).selectedOptions[0].textContent);
 
                 if (document.getElementById(`country${actual_select}`).selectedOptions[0].textContent != "Select Country"){
-                    console.log(`country${actual_select}`, document.getElementById(`country${actual_select}`).selectedOptions[0].textContent)
                     const year = document.getElementById(`year${actual_select}`).value;
                     
                     if (document.getElementById(`month${actual_select}`) != null){
@@ -498,7 +488,7 @@
                         period = year;
                     
                     }
-                    console.log(period);
+                    
                 }
 
                 const notSelected = [country_id, year_id, month_id].filter(
@@ -515,53 +505,78 @@
                             ? names.join(" and ")
                             : names.slice(0, -1).join(", ") + ", and " + names.at(-1)
                     );
-
-                    console.log(data);
                 }else{
                     data = await self.extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value,period);
-                    //console.log(data);
+                    
                 }
 
-                console.log("gg",data);
+                //console.log(data);
                 document.getElementById(`info${actual_select}`).textContent = data;
+
             }
 
             function set_listeners_for_selects(actual_select){
                 document.getElementById(`country${actual_select}`).addEventListener("change", () => {
-                    console.log(`country${actual_select}`);
                     listener(actual_select);
                     
                 })
                 document.getElementById(`year${actual_select}`).addEventListener("change", () => {
-                    console.log(`year${actual_select}`);
                     listener(actual_select);
 
                 })
 
                 if (month1 != ""){
                     document.getElementById(`month${actual_select}`).addEventListener("change", () => {
-                        console.log(`month${actual_select}`);
                         listener(actual_select);
                     
                     })
                 }
             }
             
-            
-            
             for (let x=1; x<=count; x++){
-                console.log("x",x);
                 set_listeners_for_selects(x);
                 
             }
+
         }
-            
+
+        populate_container3_graph(add_one_more = false){
+            console.log("populate3 entered");
+            const infos = document.querySelectorAll(".info").length;
+            const observer = new MutationObserver(check_if_all_has_data);
+
+            for (let x=1; x<=infos; x++){
+                observer.observe(document.getElementById(`info${x}`), {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+            }
+
+            function check_if_all_has_data(){
+                
+                let has_data;
+                for (let x=1; x<=infos; x++){
+                    if (!isNaN(document.getElementById(`info${x}`).textContent[0])){
+                        has_data = true;
+                    }else{
+                        has_data = false;
+                    }
+                }
+
+                if (has_data === true){
+                    console.log("All three are entered");
+
+                };
+            }
+        }
     }
     
 
     const s = new Select(
         "container",
         "container2",
+        "container3",
         "mySelect",
         "BRA"
     )
