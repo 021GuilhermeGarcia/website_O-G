@@ -99,7 +99,12 @@ class Select{
         document.getElementById("compareBtn").addEventListener("click", () => {
             console.log("button clicked");
             console.log(this.list_of_info);
-            this.make_graph_and_table("container3", this.list_of_info);
+            
+            if (this.list_of_info.length === 0){
+                alert("All fields should be fullfilled!");
+                return;
+            }
+            this.make_graph_and_table("container3", this.list_of_info, this.param["facets[unit][]"]);
         });
 
         this.select_country = document.querySelectorAll(".country");
@@ -575,8 +580,9 @@ class Select{
                     const quantiny = document.getElementById(`info${x}`).textContent.split(" ")[0];
                     self.list_of_info.push([country, Number(quantiny)])
                 }
+            }else{
+                self.list_of_info = [];
 
-                //make_graph_and_table(this.id_container3, list_of_info)
             };
 
             console.log(self.list_of_info);
