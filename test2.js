@@ -1,8 +1,8 @@
-function make_graph_and_table(list_of_country) {
+function make_graph_and_table(list, measure = "test") {
     const ctx = document.getElementById('myChart');
 
-    const labels = list_of_country.map(item => item[0]);
-    const data = list_of_country.map(item => item[1]);
+    const labels = list.map(item => item[0]);
+    const data = list.map(item => item[1]);
 
     const types = ['pie', 'doughnut', 'bar', 'radar'];
     let typeIndex = 0;
@@ -36,6 +36,7 @@ function make_graph_and_table(list_of_country) {
             data: {
                 labels: labels,
                 datasets: [{
+                    label: measure,
                     data: data,
                     borderWidth: 1
                 }]
@@ -44,8 +45,7 @@ function make_graph_and_table(list_of_country) {
                 responsive: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        display:false
+                        position: 'bottom'
                     }
                 }
             }
@@ -70,8 +70,8 @@ function make_graph_and_table(list_of_country) {
         </thead>
     `;
 
-    // Sort the list_of_country by units
-    const rows = [...list_of_country]
+    // Sort the list by units
+    const rows = [...list]
         .sort((a, b) => b[1] - a[1]);
 
     // Create the table body
@@ -96,11 +96,11 @@ function make_graph_and_table(list_of_country) {
     document.body.appendChild(div);
 }
 
-const list_of_country = [
+const list = [
     ["Brazil", 12.9],
     ["Argentina", 18.9],
     ["Portugal",25],
     ["Argelia",45]
 ];
 
-make_graph_and_table(list_of_country);
+make_graph_and_table(list);

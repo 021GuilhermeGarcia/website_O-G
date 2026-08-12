@@ -10,6 +10,7 @@ class Select{
         this.actual_year = new Date().getFullYear();
         this.date_beginning;
         this.date_end;
+        this.list_of_info = []
         this.populate_container1_by_creating_html();
         this.populate_country();
         //TODO verificar se esse comentario abaixo 
@@ -74,7 +75,7 @@ class Select{
                 ${month1}
             </div>
 
-            <button>Compare</button>
+            <button id="compareBtn">Compare</button>
 
             <div>
                 <label>Country:</label>
@@ -94,6 +95,12 @@ class Select{
         const container = document.getElementById(this.id_container1);
         container.innerHTML = comparisonHTML;
         container.hidden = false;
+
+        document.getElementById("compareBtn").addEventListener("click", () => {
+            console.log("button clicked");
+            console.log(this.list_of_info);
+            this.make_graph_and_table("container3", this.list_of_info);
+        });
 
         this.select_country = document.querySelectorAll(".country");
         this.select_year = document.querySelectorAll(".year");
@@ -538,9 +545,9 @@ class Select{
 
     populate_container3_graph(add_one_more = false){
         console.log("populate3 entered");
+        self = this;
         const infos = document.querySelectorAll(".info").length;
         const observer = new MutationObserver(check_if_all_info_div_has_actual_data);
-        let list_of_info;
 
         for (let x=1; x<=infos; x++){
             observer.observe(document.getElementById(`info${x}`), {
@@ -553,7 +560,7 @@ class Select{
         function check_if_all_info_div_has_actual_data(){
             
             let has_data;
-            list_of_info = [];
+            
             for (let x=1; x<=infos; x++){
                 if (!isNaN(document.getElementById(`info${x}`).textContent[0])){
                     has_data = true;
@@ -566,18 +573,112 @@ class Select{
                 for (let x=1; x<=infos; x++){
                     const country = document.getElementById(`country${x}`).selectedOptions[0].textContent;
                     const quantiny = document.getElementById(`info${x}`).textContent.split(" ")[0];
-                    list_of_info.push([country, Number(quantiny)])
+                    self.list_of_info.push([country, Number(quantiny)])
                 }
+
+                //make_graph_and_table(this.id_container3, list_of_info)
             };
 
-            console.log(list_of_info);
+            console.log(self.list_of_info);
         }
     }
 
-    make_graph(list_of_lists, container3){
-        
+    make_graph_and_table(container, list, measure = "test") {
+        const ctx = document.getElementById(container);
 
+        const labels = list.map(item => item[0]);
+        const data = list.map(item => item[1]);
 
+        const types = ['pie', 'doughnut', 'bar', 'radar'];
+        let typeIndex = 0;
+
+        let chart = new Chart(ctx, {
+            type: types[typeIndex],
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Units',
+                    data: data,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Cycle chart type on click
+        ctx.onclick = function() {
+            typeIndex = (typeIndex + 1) % types.length;
+            chart.destroy();
+            chart = new Chart(ctx, {
+                type: types[typeIndex],
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: measure,
+                        data: data,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        };
+
+        // Create the div
+        const div = document.createElement('div');
+        div.id = 'table_country';
+
+        // Create the table
+        const table = document.createElement('table');
+
+        // Create the table header
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Position</th>
+                    <th>Country</th>
+                    <th>Unit</th>
+                </tr>
+            </thead>
+        `;
+
+        // Sort the list by units
+        const rows = [...list]
+            .sort((a, b) => b[1] - a[1]);
+
+        // Create the table body
+        const tbody = document.createElement('tbody');
+
+        rows.forEach((country, index) => {
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${country[0]}</td>
+                <td>${country[1]}</td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        div.appendChild(table);
+
+        // Insert the div into the page
+        document.body.appendChild(div);
     }
 }
 
