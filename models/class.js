@@ -139,7 +139,8 @@ class Select{
                 option.textContent = country.name;
                 select.appendChild(option);
             });
-
+            
+        });
             if (this.select_country.length <= 0){
                 console.log("contents of countries not loaded");
                 return;
@@ -147,12 +148,12 @@ class Select{
                 this.select_country[0].value = this.countryRegionID;
             } else if (Array.isArray(this.countryRegionID)){
                 for(let x= 0; x<this.countryRegionID.length; x++){
+                    console.log(x);
                     console.log(this.select_country[x].value);
                     this.select_country[x].value = this.countryRegionID[x];
 
                 }
             }
-        }); 
     });
     }
 
@@ -509,9 +510,18 @@ class Select{
                 
             }
 
-            const notSelected = [country_id, year_id, month_id].filter(
+
+            let notSelected;
+            if (month_id){
+                notSelected = [country_id, year_id, month_id].filter(
                 element => element.selectedOptions[0].textContent.startsWith("Select")  
-            );
+                );
+            }else{
+                notSelected = [country_id, year_id].filter(
+                element => element.selectedOptions[0].textContent.startsWith("Select")  
+                );
+            }
+            
 
             if (notSelected.length >= 1) {
                 const names = notSelected.map(element => element.className);
