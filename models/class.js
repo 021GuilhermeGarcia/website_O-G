@@ -104,6 +104,7 @@ class Select{
                 alert("All fields should be fullfilled!");
                 return;
             }
+            
             this.make_graph_and_table("container3", this.list_of_info, this.param["facets[unit][]"]);
         });
 
@@ -215,7 +216,7 @@ class Select{
     
     async define_first_and_last_date_API(){
         try {
-            this.param["facets[countryRegionId][]"] = this.countryRegionID;
+            this.param["facets[countryRegionId][]"] = "WORL";
             const param = new URLSearchParams(this.param);
 
             const res = await fetch(`${this.url}?${param.toString()}`);
@@ -578,7 +579,19 @@ class Select{
                 for (let x=1; x<=infos; x++){
                     const country = document.getElementById(`country${x}`).selectedOptions[0].textContent;
                     const quantiny = document.getElementById(`info${x}`).textContent.split(" ")[0];
-                    self.list_of_info.push([country, Number(quantiny)])
+
+                    if (self.list_of_info.length <= infos){
+                        self.list_of_info.push([country, Number(quantiny)]);
+                    }else{
+                        self.list_of_info = [];
+                        for (let x=1; x<=infos; x++){
+                            const country = document.getElementById(`country${x}`).selectedOptions[0].textContent;
+                            const quantiny = document.getElementById(`info${x}`).textContent.split(" ")[0];
+                            self.list_of_info.push([country, Number(quantiny)]);
+                        }
+                        
+                    }
+
                 }
             }else{
                 self.list_of_info = [];
@@ -591,6 +604,12 @@ class Select{
 
     make_graph_and_table(container, list, measure = "test") {
         const ctx = document.getElementById(container);
+
+        const existingChart = Chart.getChart(ctx);
+
+        if (existingChart) {
+            existingChart.destroy();
+        }
 
         const labels = list.map(item => item[0]);
         const data = list.map(item => item[1]);
@@ -645,6 +664,7 @@ class Select{
 
         // Create the div
         const div = document.createElement('div');
+        document.getElementById('table_country')?.remove();
         div.id = 'table_country';
 
         // Create the table
