@@ -573,6 +573,12 @@ class Select{
             console.log(list_of_info);
         }
     }
+
+    make_graph(list_of_lists, container3){
+        
+
+
+    }
 }
 
 

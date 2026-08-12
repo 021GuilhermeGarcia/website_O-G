@@ -1,35 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oil & Gas Value Chain</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Atlas of Numbers — Country Data Graphs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
 <body>
 
-    <select class="fruit">
-    <option>Apple</option>
-    <option>Banana</option>
-    </select>
+    <div class="wrap">
+ 
+    <header>
+        <p class="eyebrow">Field Ledger · No. 03</p>
+        <h1>Atlas of Numbers</h1>
+        <p class="sub">Paste a list of <code>[country, value]</code> pairs below. The ledger reads it, then plots it three ways — the display always adjusts to however many entries you give it.</p>
+    </header>
+    
+    <section class="panel">
+        <p class="panel-title">Data input</p>
+        <textarea id="dataInput">[["Brazil", 10.0032], ["Argentina", 15.0021], ["German", 8.2213]]</textarea>
+        <div class="row">
+        <button id="loadBtn">Load data</button>
+        <span id="status"></span>
+        </div>
+    </section>
+    
+    <section class="layout">
+        <div class="tabs">
+        <button class="tab active" data-chart="pie">
+            <span class="idx">01</span>
+            <span class="name">Pie</span>
+        </button>
+        <button class="tab" data-chart="bar">
+            <span class="idx">02</span>
+            <span class="name">Bar</span>
+        </button>
+        <button class="tab" data-chart="radar">
+            <span class="idx">03</span>
+            <span class="name">Radar</span>
+        </button>
+        </div>
+    
+        <div class="chart-shell">
+        <p class="chart-caption" id="chartCaption">— entries plotted</p>
+        <div class="chart-canvas-wrap">
+            <canvas id="mainChart"></canvas>
+        </div>
+        </div>
+    </section>
+    
+    <section class="panel">
+        <p class="panel-title">Parsed table</p>
+        <table>
+        <thead><tr><th>#</th><th>Country</th><th style="text-align:right">Value</th></tr></thead>
+        <tbody id="tableBody"></tbody>
+        </table>
+    </section>
+    </div>
 
-    <select class="fruit">
-    <option>Orange</option>
-    <option>Grape</option>
-    </select>
-
-    <select class="fruit">
-    <option>Watermelon</option>
-    <option>Kiwi</option>
-    </select>
-
-    <select id="other_fruit">
-    <option>Grape</option>
-    <option>Melon</option>
-    </select>
-
-    <script src="test.js"></script>
+    <script src="test.js" defer></script>
 
 </body>
 </html>
