@@ -13,12 +13,11 @@ class Select{
         this.list_of_info = []
         this.populate_container1_by_creating_html();
         this.populate_country();
-        //TODO verificar se esse comentario abaixo 
-        // this.modify_param_var();
         this.set_API_parameter();
         this.starter_async_fun = this.init().then(() => {
             this.populate_container2_by_querying_API();
             this.populate_container3_graph();
+            this.put_listener_on_select();
         }); 
 
     }
@@ -141,8 +140,17 @@ class Select{
                 select.appendChild(option);
             });
 
-            if (this.select_country.length > 0 && this.countryRegionID) {
+            if (this.select_country.length <= 0){
+                console.log("contents of countries not loaded");
+                return;
+            } else if (this.countryRegionID && typeof this.countryRegionID === "string") {
                 this.select_country[0].value = this.countryRegionID;
+            } else if (Array.isArray(this.countryRegionID)){
+                for(let x= 0; x<this.countryRegionID.length; x++){
+                    console.log(this.select_country[x].value);
+                    this.select_country[x].value = this.countryRegionID[x];
+
+                }
             }
         }); 
     });
@@ -477,6 +485,7 @@ class Select{
 
                 document.getElementById(self.id_container2).appendChild(info);
             }
+            info.textContent = "";
         }
 
         async function listener(actual_select){
@@ -705,6 +714,39 @@ class Select{
 
         // Insert the div into the page
         document.body.appendChild(div);
+    }
+
+    put_listener_on_select(){
+
+        let list_of_selected_countries = [];
+        document.getElementById("mySelect").addEventListener("change", () => {
+            console.log("value changed");
+
+            if (document.getElementById("country1")){
+                console.log("Entered");
+                const count = document.querySelectorAll(".country").length;
+                for (let x = 1; x<=count ; x++){
+                    list_of_selected_countries.push(document.getElementById(`country${x}`).value);
+                }
+                console.log(list_of_selected_countries);
+
+                new Select(
+                "container",
+                "container2",
+                "container3",
+                "mySelect",
+                list_of_selected_countries
+                )
+            }else{
+                new Select(
+                "container",
+                "container2",
+                "container3",
+                "mySelect",
+                ""
+                )
+            }
+        });
     }
 }
 
