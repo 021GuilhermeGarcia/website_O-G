@@ -38,7 +38,7 @@ class Select{
         }
 
         console.log(this.select_option_id.value);
-        const month1 =
+        const month =
         (actual_option.value === "option1" || actual_option.value === "option2")
             ? `
                 <select class="month">
@@ -46,18 +46,6 @@ class Select{
                 </select>
             `
         : "";
-
-        const month2 =
-        (actual_option.value === "option1" || actual_option.value === "option2")
-            ? `
-                <select class="month">
-                    <option>Select Month</option>
-                </select>
-            `
-        : "";
-
-        globalThis.month1 = month1;
-        globalThis.month2 = month2;
 
         const comparisonHTML = `
         <div class="comparison">
@@ -71,7 +59,7 @@ class Select{
                     <option>Select Country</option>
                 </select>
 
-                ${month1}
+                ${month}
             </div>
 
             <button id="compareBtn">Compare</button>
@@ -86,7 +74,7 @@ class Select{
                     <option>Select Year</option>
                 </select>
 
-                ${month2}
+                ${month}
             </div>
 
             <div id="country_to_be_added"></div>
@@ -476,20 +464,22 @@ class Select{
         }
     }
 
-    populate_container2_by_querying_API(populate_only_last_one = false){
+    populate_container2_by_querying_API(){
         const self = this;
 
         let data;
-        for (let x = 1; x <= this.select_country.length; x++){
-            let info = document.getElementById(`info${x}`);
-
-            if (!info) {
+        let info;
+        for (let x = 0; x < this.select_country.length; x++){
+            if (!document.getElementsByClassName("info")[x]){
+                console.log(x);
                 info = document.createElement("div");
                 info.className = "info";
 
                 document.getElementById(self.id_container2).appendChild(info);
             }
-            info.textContent = "";
+            //TODO verificar se precisa abaixo
+            //info.textContent = "";
+               
         }
         this.div_info = document.getElementsByClassName("info");
 
@@ -563,53 +553,46 @@ class Select{
 
     }
 
-    populate_container3_graph(add_one_more = false){
-        
-        self = this;
+    populate_container3_graph(add_one_more = false) {
+        const self = this;
+
         const observer = new MutationObserver(check_if_all_info_div_has_actual_data);
 
-        for (let x=0; x<this.div_info.length; x++){
-            observer.observe(this.div_info[x], {
-            childList: true,
-            subtree: true,
-            characterData: true
-        });
+        for (const info of this.div_info) {
+            observer.observe(info, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
         }
 
-        function check_if_all_info_div_has_actual_data(){
-            
-            let has_data;
-            
-            for (let x=0; x<self.div_info.length; x++){
-                if (!isNaN(self.div_info[x].textContent)){
-                    has_data = true;
-                }else{
+        function check_if_all_info_div_has_actual_data() {
+            let has_data = true;
+
+            for (let x = 0; x < self.div_info.length; x++) {
+                const text = self.div_info[x].textContent.trim();
+
+                if (!text || isNaN(Number(text.split(" ")[0]))) {
                     has_data = false;
+                    break;
                 }
             }
 
-            if (has_data === true){
-                for (let x=0; x<self.div_info.length; x++){
-                    const country = self.select_country[x].selectedOptions[0].textContent;
-                    const quantiny = self.select_country[x].textContent.split(" ")[0];
-
-                    if (self.list_of_info.length <= self.div_info.length){
-                        self.list_of_info.push([country, Number(quantiny)]);
-                    }else{
-                        self.list_of_info = [];
-                        for (let x=0; x<self.div_info.length; x++){
-                            const country = self.select_country[x].selectedOptions[0].textContent;
-                            const quantiny = self.select_country[x].textContent.split(" ")[0];
-                            self.list_of_info.push([country, Number(quantiny)]);
-                        }
-                        
-                    }
-
-                }
-            }else{
+            if (has_data) {
                 self.list_of_info = [];
 
-            };
+                for (let x = 0; x < self.div_info.length; x++) {
+                    const country =
+                        self.select_country[x].selectedOptions[0].textContent;
+
+                    const quantity =
+                        Number(self.div_info[x].textContent.split(" ")[0]);
+
+                    self.list_of_info.push([country, quantity]);
+                }
+            } else {
+                self.list_of_info = [];
+            }
 
             console.log(self.list_of_info);
         }
@@ -689,7 +672,7 @@ class Select{
                 <tr>
                     <th>Position</th>
                     <th>Country</th>
-                    <th>Unit</th>
+                    <th>${this.param["facets[unit][]"]}</th>
                 </tr>
             </thead>
         `;
@@ -754,15 +737,9 @@ class Select{
     }
 
     add_country(){
-        const actual_option = document.getElementById(this.select_option_id).selectedOptions[0];
 
-        if (actual_option.value == "option1" && this.countryRegionID != null && this.countryRegionID.trim() !== ""){
-            document.getElementById(this.select_option_id).value = "option2";
-        }
-
-        console.log(this.select_option_id.value);
         const month =
-        (actual_option.value === "option1" || actual_option.value === "option2")
+        (document.querySelector(".month"))
             ? `
                 <select class="month">
                     <option>Select Month</option>
@@ -790,6 +767,12 @@ class Select{
         const container = document.getElementById("country_to_be_added");
         container.innerHTML += comparisonHTML;
         this.populate_country();
+        this.populate_year();
+        if (document.querySelector(".month")){
+            this.populate_month();
+        }
+        this.populate_container2_by_querying_API();
+        this.populate_container3_graph();
 
     }
 }
