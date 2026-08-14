@@ -41,7 +41,7 @@ class Select{
         const month1 =
         (actual_option.value === "option1" || actual_option.value === "option2")
             ? `
-                <select class="month" id="month1">
+                <select class="month">
                     <option>Select Month</option>
                 </select>
             `
@@ -50,7 +50,7 @@ class Select{
         const month2 =
         (actual_option.value === "option1" || actual_option.value === "option2")
             ? `
-                <select class="month" id="month2">
+                <select class="month">
                     <option>Select Month</option>
                 </select>
             `
@@ -63,12 +63,12 @@ class Select{
         <div class="comparison">
             <div>
                 <label>Country:</label>
-                <select class="country" id="country1">
+                <select class="country">
                     <option>Select Country</option>
                 </select>
 
                 <select class="year" id="year1">
-                    <option>r</option>
+                    <option>Select Country</option>
                 </select>
 
                 ${month1}
@@ -78,7 +78,7 @@ class Select{
 
             <div>
                 <label>Country:</label>
-                <select  class="country" id="country2">
+                <select  class="country">
                     <option>Select Country</option>
                 </select>
 
@@ -88,12 +88,15 @@ class Select{
 
                 ${month2}
             </div>
+
+            <div id="country_to_be_added"></div>
+
+            <button id="addBtn">Add country</button>
         </div>
         `;
 
         const container = document.getElementById(this.id_container1);
         container.innerHTML = comparisonHTML;
-        container.hidden = false;
 
         document.getElementById("compareBtn").addEventListener("click", () => {
             console.log("button clicked");
@@ -107,11 +110,15 @@ class Select{
             this.make_graph_and_table("container3", this.list_of_info, this.param["facets[unit][]"]);
         });
 
-        this.select_country = document.querySelectorAll(".country");
-        this.select_year = document.querySelectorAll(".year");
-        this.select_month = document.querySelectorAll(".month");
+        document.getElementById("addBtn").addEventListener("click", () => {
+            this.add_country();
+
+        })
+
+        this.select_country = document.getElementsByClassName("country");
+        this.select_year = document.getElementsByClassName("year");
+        this.select_month = document.getElementsByClassName("month");
     }
-    //idcontainer2 is about to be made
 
     populate_country(){
         //TODO: verificar pq funciona o "d3."
@@ -133,27 +140,27 @@ class Select{
             .sort((a, b) => a.name.localeCompare(b.name));
 
             countryDetails.forEach(country => {
-            this.select_country.forEach(select => {
-                const option = document.createElement("option");
-                option.value = country.iso3;
-                option.textContent = country.name;
-                select.appendChild(option);
-            });
-            
-        });
-            if (this.select_country.length <= 0){
-                console.log("contents of countries not loaded");
-                return;
-            } else if (this.countryRegionID && typeof this.countryRegionID === "string") {
-                this.select_country[0].value = this.countryRegionID;
-            } else if (Array.isArray(this.countryRegionID)){
-                for(let x= 0; x<this.countryRegionID.length; x++){
-                    console.log(x);
-                    console.log(this.select_country[x].value);
-                    this.select_country[x].value = this.countryRegionID[x];
-
+                for (let i = 0; i < this.select_country.length; i++) {
+                    const select = this.select_country[i];
+                    const option = document.createElement("option");
+                    option.value = country.iso3;
+                    option.textContent = country.name;
+                    select.appendChild(option);
                 }
-            }
+                if (this.select_country.length <= 0){
+                    console.log("contents of countries not loaded");
+                    return;
+                } else if (this.countryRegionID && typeof this.countryRegionID === "string") {
+                    this.select_country[0].value = this.countryRegionID;
+                } else if (Array.isArray(this.countryRegionID)){
+                    for(let x= 0; x<this.countryRegionID.length; x++){
+                        console.log(x);
+                        console.log(this.select_country[x].value);
+                        this.select_country[x].value = this.countryRegionID[x];
+
+                    }
+                }
+            })
     });
     }
 
@@ -261,6 +268,9 @@ class Select{
 
     async extract_quantity_and_unit_of_resources(countryIsoId, targetPeriod){
 
+
+        console.log("countryIsoId: ",countryIsoId);
+        console.log("targetPeriod: ",targetPeriod);
         this.param["facets[countryRegionId][]"] = countryIsoId;
 
         const apiKey = "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy";
@@ -284,19 +294,6 @@ class Select{
             const record = records.find(r => r.period === targetPeriod);
 
             if (!record) {
-                
-                if (targetPeriod === undefined){
-                    return "Select year and month";
-                }
-                if (targetPeriod.endsWith("-00") && targetPeriod.startsWith("2")){
-                    return "Select month";
-                }else if(targetPeriod.endsWith("-00") && !targetPeriod.startsWith("2")){
-                    return "Select year and month";
-                }else if(targetPeriod.endsWith("00")){
-                    return "Select month";
-                }else if(targetPeriod.endsWith("-01")){
-                    return "Select year";
-                }
 
                 console.log("No record found.");
                 return "No data available";
@@ -350,28 +347,30 @@ class Select{
     }
     
     populate_month(){
-        if (month1 != "" && month2 != ""){
+        if (document.querySelector(".month")){
 
-            this.select_month.forEach(select => {
+            for (let i = 0; i < this.select_month.length; i++) {
+                const select = this.select_month[i];
 
-            select.innerHTML = "";
+                select.innerHTML = "";
 
-            const defaultOption = document.createElement("option");
-            defaultOption.textContent = "Select Month";
-            defaultOption.value = "";
-            defaultOption.selected = true;
-            defaultOption.disabled = true;
-            select.appendChild(defaultOption);
+                const defaultOption = document.createElement("option");
+                defaultOption.textContent = "Select Month";
+                defaultOption.value = "";
+                defaultOption.selected = true;
+                defaultOption.disabled = true;
+                select.appendChild(defaultOption);
 
-            for (let i = 1; i <= 12; i++) {
-                const option = document.createElement("option");
-                option.value = i;
-                option.textContent = i;
-                select.appendChild(option);
+                for (let j = 1; j <= 12; j++) {
+                    const option = document.createElement("option");
+                    option.value = j;
+                    option.textContent = j;
+                    select.appendChild(option);
+                }
             }
-            });
 
-            this.select_month.forEach((select, index) => {
+            for (let index = 0; index < this.select_month.length; index++) {
+                const select = this.select_month[index];
 
                 select.addEventListener("change", () => {
 
@@ -389,135 +388,125 @@ class Select{
                             if (
                                 optionValue > Number(this.date_end.split("-")[1]) &&
                                 !option.textContent.endsWith("❌")
-                            ){
+                            ) {
                                 option.textContent += " ❌";
                             }
                         }
                     }
                 });
-            })
+            }
 
-            this.select_year.forEach((select, index) => {
+            for (let index = 0; index < this.select_country.length; index++) {
+                const select = this.select_country[index];
+
                 select.addEventListener("change", () => {
-                    const selectedYear = Number(select.selectedOptions[0].value);
                     
-                    //TODO testar essa condição abaixo
-                    if (selectedYear > Number(this.date_end.split("-")[0])){
-                        for (const option of select.options){
-                            const optionValue = Number(option.value);
+                    const selectedCountry = this.select_country[index].selectedOptions[0].textContent;
+                    const selectedYear = this.select_year[index].selectedOptions[0].textContent;
+                    const selectedMonth = this.select_month[index].selectedOptions[0].textContent;
 
-                            if (!option.textContent.endsWith("❌")){
+                    if (
+                        selectedCountry != "Select" &&
+                        selectedYear != "Select" &&
+                        selectedMonth != "Select" &&
+                        Number(selectedMonth) > this.date_end.split("-")[1]
+                    ) {
+                        for (const option of this.select_month[index]) {
+                            const optionValue = option.value;
+
+                            if (
+                                optionValue != "Select Month" &&
+                                Number(optionValue) > Number(this.date_end.split("-")[1]) &&
+                                !option.textContent.endsWith("❌")
+                            ) {
                                 option.textContent += " ❌";
                             }
                         }
-                    } else if (selectedYear === Number(this.date_end.split("-")[0])){
+                    }
+                });
+            }
 
+            for (let index = 0; index < this.select_year.length; index++) {
+                const select = this.select_year[index];
+
+                select.addEventListener("change", () => {
+                    const selectedYear = Number(select.selectedOptions[0].value);
+                    const endYear = Number(this.date_end.split("-")[0]);
+                    const endMonth = Number(this.date_end.split("-")[1]);
+
+                    if (selectedYear > endYear) {
+                        for (const option of select.options) {
+                            if (!option.textContent.endsWith("❌")) {
+                                option.textContent += " ❌";
+                            }
+                        }
+
+                    } else if (selectedYear === endYear) {
                         const selectedMonth = this.select_month[index].selectedOptions[0].textContent;
                         const selectedCountry = this.select_country[index].selectedOptions[0].textContent;
 
-                        if (selectedCountry != "Select Country" && selectedMonth != "Select Month" && 
-                            Number(selectedMonth) > Number(this.date_end.split("-")[1]) 
-                            && !selectedMonth.endsWith("❌") ){
-                            
-                            for (const option of this.select_month[index]) {
-                                const optionValue = option.value;
+                        if (
+                            selectedCountry !== "Select Country" &&
+                            selectedMonth !== "Select Month" &&
+                            Number(selectedMonth) > endMonth &&
+                            !selectedMonth.endsWith("❌")
+                        ) {
+                            for (const option of this.select_month[index].options) {
+                                const optionValue = Number(option.value);
+
                                 if (
-                                    optionValue != "Select Month" && 
-                                    Number(optionValue) > Number(this.date_end.split("-")[1]) &&
+                                    option.value !== "Select Month" &&
+                                    optionValue > endMonth &&
                                     !option.textContent.endsWith("❌")
-                                ){
-                                    
+                                ) {
                                     option.textContent += " ❌";
                                 }
                             }
-                            
-                        }                            
-                    }else{
-                        for (const option of this.select_month[index]) {
-                            const optionValue = Number(option.value);
+                        }
 
-                            if (option.textContent.endsWith("❌")){
-                                option.textContent = option.textContent.replace(" ❌", "");;
+                    } else {
+                        for (const option of this.select_month[index].options) {
+                            if (option.textContent.endsWith("❌")) {
+                                option.textContent = option.textContent.replace(" ❌", "");
                             }
                         }
                     }
-                })
-            })
-
-            this.select_country.forEach((select, index) => {
-                select.addEventListener("change", () => {
-                const selectedCountry = this.select_country[index].selectedOptions[0].textContent;
-                const selectedYear = this.select_year[index].selectedOptions[0].textContent;
-                const selectedMonth = this.select_month[index].selectedOptions[0].textContent;
-
-                if (selectedCountry != "Select" && selectedYear != "Select" && selectedMonth != "Select" && Number(selectedMonth) >  this.date_end.split("-")[1]){
-                    for (const option of this.select_month[index]) {
-                        const optionValue = option.value;
-
-                        if (
-                            optionValue != "Select Month" && 
-                            Number(optionValue) > Number(this.date_end.split("-")[1]) &&
-                            !option.textContent.endsWith("❌")
-                        ){
-                            
-                            option.textContent += " ❌";
-                        }
-                    }
-                }  
-            })
-            });
-            
-
+                });
+            }
         }
     }
 
     populate_container2_by_querying_API(populate_only_last_one = false){
         const self = this;
 
-        const count = document.querySelectorAll(".country").length;
         let data;
-        for (let x = 1; x <= count; x++){
+        for (let x = 1; x <= this.select_country.length; x++){
             let info = document.getElementById(`info${x}`);
 
             if (!info) {
                 info = document.createElement("div");
                 info.className = "info";
-                info.id = `info${x}`;
 
                 document.getElementById(self.id_container2).appendChild(info);
             }
             info.textContent = "";
         }
+        this.div_info = document.getElementsByClassName("info");
 
         async function listener(actual_select){
             let period;
-            //if (document.getElementById(`country${actual_select}`).value != "Select Country"){
-            let country_id= document.getElementById(`country${actual_select}`);
-            let year_id = document.getElementById(`year${actual_select}`);
-            let month_id = document.getElementById(`month${actual_select}`); 
 
-            if (document.getElementById(`country${actual_select}`).selectedOptions[0].textContent != "Select Country"){
-                const year = document.getElementById(`year${actual_select}`).value;
-                
-                if (document.getElementById(`month${actual_select}`) != null){
-                    const month = document.getElementById(`month${actual_select}`).value;
-                    period = `${year}-${String(month).padStart(2, "0")}`;
-                    
-                } else {
-                    period = year;
-                
-                }
-                
-            }
-
+            let country = document.getElementsByClassName("country")[actual_select]
+            let year = document.getElementsByClassName("year")[actual_select]
+            let month = document.getElementsByClassName("month")[actual_select] 
 
             let notSelected;
-            if (month_id){
-                notSelected = [country_id, year_id, month_id].filter(
+            if (document.querySelector(".month")){
+                notSelected = [country, year, month].filter(
                 element => element.selectedOptions[0].textContent.startsWith("Select")  
                 );
             }else{
-                notSelected = [country_id, year_id].filter(
+                notSelected = [country, year].filter(
                 element => element.selectedOptions[0].textContent.startsWith("Select")  
                 );
             }
@@ -534,34 +523,40 @@ class Select{
                         : names.slice(0, -1).join(", ") + ", and " + names.at(-1)
                 );
             }else{
-                data = await self.extract_quantity_and_unit_of_resources(document.getElementById(`country${actual_select}`).value,period);
+                if (document.querySelector(".month")){
+                    period = `${year.value}-${String(month.value).padStart(2, "0")}`;
+
+                } else {
+                    period = year.value
+
+                }
+                data = await self.extract_quantity_and_unit_of_resources(country.value, period);
                 
             }
 
-            //console.log(data);
-            document.getElementById(`info${actual_select}`).textContent = data;
-
+            //console.log("This is data",data);
+            self.div_info[actual_select].textContent = data
         }
 
         function set_listeners_for_selects(actual_select){
-            document.getElementById(`country${actual_select}`).addEventListener("change", () => {
+            self.select_country[actual_select].addEventListener("change", () => {
                 listener(actual_select);
                 
             })
-            document.getElementById(`year${actual_select}`).addEventListener("change", () => {
+            self.select_year[actual_select].addEventListener("change", () => {
                 listener(actual_select);
 
             })
 
-            if (month1 != ""){
-                document.getElementById(`month${actual_select}`).addEventListener("change", () => {
+            if (document.querySelector(".month")){
+                self.select_month[actual_select].addEventListener("change", () => {
                     listener(actual_select);
                 
                 })
             }
         }
         
-        for (let x=1; x<=count; x++){
+        for (let x=0; x<this.select_country.length; x++){
             set_listeners_for_selects(x);
             
         }
@@ -569,13 +564,12 @@ class Select{
     }
 
     populate_container3_graph(add_one_more = false){
-        console.log("populate3 entered");
+        
         self = this;
-        const infos = document.querySelectorAll(".info").length;
         const observer = new MutationObserver(check_if_all_info_div_has_actual_data);
 
-        for (let x=1; x<=infos; x++){
-            observer.observe(document.getElementById(`info${x}`), {
+        for (let x=0; x<this.div_info.length; x++){
+            observer.observe(this.div_info[x], {
             childList: true,
             subtree: true,
             characterData: true
@@ -586,8 +580,8 @@ class Select{
             
             let has_data;
             
-            for (let x=1; x<=infos; x++){
-                if (!isNaN(document.getElementById(`info${x}`).textContent[0])){
+            for (let x=0; x<self.div_info.length; x++){
+                if (!isNaN(self.div_info[x].textContent)){
                     has_data = true;
                 }else{
                     has_data = false;
@@ -595,17 +589,17 @@ class Select{
             }
 
             if (has_data === true){
-                for (let x=1; x<=infos; x++){
-                    const country = document.getElementById(`country${x}`).selectedOptions[0].textContent;
-                    const quantiny = document.getElementById(`info${x}`).textContent.split(" ")[0];
+                for (let x=0; x<self.div_info.length; x++){
+                    const country = self.select_country[x].selectedOptions[0].textContent;
+                    const quantiny = self.select_country[x].textContent.split(" ")[0];
 
-                    if (self.list_of_info.length <= infos){
+                    if (self.list_of_info.length <= self.div_info.length){
                         self.list_of_info.push([country, Number(quantiny)]);
                     }else{
                         self.list_of_info = [];
-                        for (let x=1; x<=infos; x++){
-                            const country = document.getElementById(`country${x}`).selectedOptions[0].textContent;
-                            const quantiny = document.getElementById(`info${x}`).textContent.split(" ")[0];
+                        for (let x=0; x<self.div_info.length; x++){
+                            const country = self.select_country[x].selectedOptions[0].textContent;
+                            const quantiny = self.select_country[x].textContent.split(" ")[0];
                             self.list_of_info.push([country, Number(quantiny)]);
                         }
                         
@@ -757,6 +751,46 @@ class Select{
                 )
             }
         });
+    }
+
+    add_country(){
+        const actual_option = document.getElementById(this.select_option_id).selectedOptions[0];
+
+        if (actual_option.value == "option1" && this.countryRegionID != null && this.countryRegionID.trim() !== ""){
+            document.getElementById(this.select_option_id).value = "option2";
+        }
+
+        console.log(this.select_option_id.value);
+        const month =
+        (actual_option.value === "option1" || actual_option.value === "option2")
+            ? `
+                <select class="month">
+                    <option>Select Month</option>
+                </select>
+            `
+        : "";
+
+        const comparisonHTML = `
+        <div class="comparison">
+            <div>
+                <label>Country:</label>
+                <select class="country">
+                    <option>Select Country</option>
+                </select>
+
+                <select class="year">
+                    <option>Select Country</option>
+                </select>
+
+                ${month}
+            </div>
+        </div>
+        `;
+
+        const container = document.getElementById("country_to_be_added");
+        container.innerHTML += comparisonHTML;
+        this.populate_country();
+
     }
 }
 
