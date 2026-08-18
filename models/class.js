@@ -1,3 +1,5 @@
+//TODO: listeners are actually duplicating, find a way to not duplicate, that should be the last thing to do on this project
+//TODO: verificar pq a demora pra chamada de API
 class Select{
     constructor(id_container1, id_container2, id_container3, select_option_id, countryRegionID ){
         this.id_container1 = id_container1;
@@ -11,6 +13,7 @@ class Select{
         this.date_beginning;
         this.date_end;
         this.list_of_info = []
+        this.wipe_elements_from_previous_select_class_call();
         this.populate_container1_by_creating_html();
         this.populate_country();
         this.set_API_parameter();
@@ -19,6 +22,11 @@ class Select{
             this.populate_container3_graph();
             this.put_listener_on_select();
         }); 
+
+    }
+
+    wipe_elements_from_previous_select_class_call(){
+        console.log("to be made");
 
     }
 
@@ -296,9 +304,10 @@ class Select{
 
     populate_year(){
 
-        const yearSelects = document.querySelectorAll(".year");
+        const yearSelects = document.getElementsByClassName("year");
 
-        yearSelects.forEach((select) => {
+        for (let i = 0; i < yearSelects.length; i++) {
+            const select = yearSelects[i];
             select.innerHTML = "";
 
             const defaultOption = document.createElement("option");
@@ -308,21 +317,23 @@ class Select{
             defaultOption.disabled = true;
             select.appendChild(defaultOption);
 
-            for (let year = this.actual_year; year >= Number(this.date_beginning.split("-")[0]); year--){
+            for (let year = this.actual_year; year >= Number(this.date_beginning.split("-")[0]); year--) {
                 const option = document.createElement("option");
                 option.value = year;
                 option.textContent = year;
                 select.appendChild(option);
             }
-        });
-    
+        }
 
-        for (const select of yearSelects) {
+        for (let i = 0; i < yearSelects.length; i++) {
+            const select = yearSelects[i];
+
             select.addEventListener("change", () => {
                 const selectedOption = select.options[select.selectedIndex];
                 const value = Number(selectedOption.value);
 
-                for (const option of select.options) {
+                for (let j = 0; j < select.options.length; j++) {
+                    const option = select.options[j];
                     const optionValue = Number(option.value);
 
                     if (optionValue > Number(this.date_end.split("-")[0]) && !option.textContent.endsWith("❌")) {
@@ -331,7 +342,6 @@ class Select{
                 }
             });
         }
-        
     }
     
     populate_month(){
@@ -384,36 +394,6 @@ class Select{
                 });
             }
 
-            for (let index = 0; index < this.select_country.length; index++) {
-                const select = this.select_country[index];
-
-                select.addEventListener("change", () => {
-                    
-                    const selectedCountry = this.select_country[index].selectedOptions[0].textContent;
-                    const selectedYear = this.select_year[index].selectedOptions[0].textContent;
-                    const selectedMonth = this.select_month[index].selectedOptions[0].textContent;
-
-                    if (
-                        selectedCountry != "Select" &&
-                        selectedYear != "Select" &&
-                        selectedMonth != "Select" &&
-                        Number(selectedMonth) > this.date_end.split("-")[1]
-                    ) {
-                        for (const option of this.select_month[index]) {
-                            const optionValue = option.value;
-
-                            if (
-                                optionValue != "Select Month" &&
-                                Number(optionValue) > Number(this.date_end.split("-")[1]) &&
-                                !option.textContent.endsWith("❌")
-                            ) {
-                                option.textContent += " ❌";
-                            }
-                        }
-                    }
-                });
-            }
-
             for (let index = 0; index < this.select_year.length; index++) {
                 const select = this.select_year[index];
 
@@ -431,10 +411,8 @@ class Select{
 
                     } else if (selectedYear === endYear) {
                         const selectedMonth = this.select_month[index].selectedOptions[0].textContent;
-                        const selectedCountry = this.select_country[index].selectedOptions[0].textContent;
 
                         if (
-                            selectedCountry !== "Select Country" &&
                             selectedMonth !== "Select Month" &&
                             Number(selectedMonth) > endMonth &&
                             !selectedMonth.endsWith("❌")
@@ -477,8 +455,6 @@ class Select{
 
                 document.getElementById(self.id_container2).appendChild(info);
             }
-            //TODO verificar se precisa abaixo
-            //info.textContent = "";
                
         }
         this.div_info = document.getElementsByClassName("info");
