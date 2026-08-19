@@ -1,5 +1,5 @@
-//TODO: listeners are actually duplicating, find a way to not duplicate, that should be the last thing to do on this project
-//TODO: verificar pq a demora pra chamada de API
+//TODO: .addEventListener are actually duplicating, find a way to not duplicate, that should be the last thing to do on this project
+//TODO: verificar pq a demora pra chamada de API e desenvolver solução para rapidez do processo
 class Select{
     constructor(id_container1, id_container2, id_container3, select_option_id, countryRegionID ){
         this.id_container1 = id_container1;
@@ -26,8 +26,24 @@ class Select{
     }
 
     wipe_elements_from_previous_select_class_call(){
-        console.log("to be made");
 
+        const info_class = document.getElementsByClassName("info");
+        if (info_class.length >= 1){
+            for (let x = 0; x < info_class.length; x++){
+
+                if (info_class[x].textContent != ""){
+                    info_class[x].textContent = "";
+                }
+            }
+        }
+
+        const existingChart = Chart.getChart(document.getElementById("container3"));
+
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        document.getElementById('table_country')?.remove()
     }
 
     async init(){
@@ -304,10 +320,14 @@ class Select{
 
     populate_year(){
 
-        const yearSelects = document.getElementsByClassName("year");
+        
+        for (let i = 0; i < this.select_year.length; i++) {
+            const select = this.select_year[i];
 
-        for (let i = 0; i < yearSelects.length; i++) {
-            const select = yearSelects[i];
+            if (select.options.length > 1){
+                continue
+            }
+
             select.innerHTML = "";
 
             const defaultOption = document.createElement("option");
@@ -325,8 +345,8 @@ class Select{
             }
         }
 
-        for (let i = 0; i < yearSelects.length; i++) {
-            const select = yearSelects[i];
+        for (let i = 0; i < this.select_year.length; i++) {
+            const select = this.select_year[i];
 
             select.addEventListener("change", () => {
                 const selectedOption = select.options[select.selectedIndex];
@@ -349,6 +369,10 @@ class Select{
 
             for (let i = 0; i < this.select_month.length; i++) {
                 const select = this.select_month[i];
+
+                if(select.options.length > 1){
+                    continue;
+                }
 
                 select.innerHTML = "";
 
