@@ -71,7 +71,10 @@ class Select{
             `
         : "";
 
-        const comparisonHTML = `
+        const only_country_and_year = ["option5", "option8", "option11", "option14"]
+        .includes(actual_option.value);
+
+        const comparisonHTML = !only_country_and_year ? `
         <div class="comparison">
             <div>
                 <label>Country:</label>
@@ -105,12 +108,26 @@ class Select{
 
             <button id="addBtn">Add country</button>
         </div>
-        `;
+        ` :`
+        <div class="comparison">
+        <div>
+            <label>Country:</label>
+            <select class="country">
+                <option>Select Country</option>
+            </select>
+
+            <select class="year" id="year1">
+                <option>Select Country</option>
+            </select>
+
+            <button id="compareBtn">Compare</button>
+
+        </div>`;
 
         const container = document.getElementById(this.id_container1);
         container.innerHTML = comparisonHTML;
 
-        document.getElementById("compareBtn").addEventListener("click", () => {
+        document.getElementById("compareBtn")?.addEventListener("click", () => {
             console.log("button clicked");
             console.log(this.list_of_info);
             
@@ -122,7 +139,7 @@ class Select{
             this.make_graph_and_table("container3", this.list_of_info, this.param["facets[unit][]"]);
         });
 
-        document.getElementById("addBtn").addEventListener("click", () => {
+        document.getElementById("addBtn")?.addEventListener("click", () => {
             this.add_country();
 
         })
@@ -176,19 +193,26 @@ class Select{
     });
     }
 
-    modify_param_var(frequency, activityID, productID, unit){
-        this.param = {
-            api_key: "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy",
-            frequency: frequency,
-            "data[0]": "value",
-            "facets[activityId][]": activityID,
-            "facets[productId][]": productID,
-            "facets[countryRegionId][]": "This one should be modified when needed, call this.param and modify it",
-            "facets[unit][]": unit,
-            "sort[0][column]": "period",
-            "sort[0][direction]": "desc",
-            length: 5000
+    modify_param_var(frequency, activityID, productID, unit, desire_return=false){
+        const param = {
+        api_key: "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy",
+        frequency: frequency,
+        "data[0]": "value",
+        "facets[activityId][]": activityID,
+        "facets[productId][]": productID,
+        "facets[countryRegionId][]": "This one should be modified when needed",
+        "facets[unit][]": unit,
+        "sort[0][column]": "period",
+        "sort[0][direction]": "desc",
+        length: 5000
         };
+
+        if (desire_return) {
+            return param;
+        }
+
+        this.param = param;
+        
     }
     
     set_API_parameter(){
@@ -207,6 +231,12 @@ class Select{
                 this.modify_param_var("annual", "2", "54", "TBPD");
                 break;
             case 'option5':
+                let production_data =  this.modify_param_var("annual", "1", "54", "TBPD", true);
+                let consumption_data = this.modify_param_var("annual", "2", "54", "TBPD", true);
+
+                globalThis.production_data = production_data;
+                console.log("this is production data", production_data);
+                globalThis.consumption_data = consumption_data;
                 // production and consumption
                 break;
             case 'option6'://
@@ -243,11 +273,13 @@ class Select{
     }
     
     async define_first_and_last_date_API(){
-        try {
-            this.param["facets[countryRegionId][]"] = "WORL";
-            const param = new URLSearchParams(this.param);
+        self = this;
+        async function define_first_and_last_date(standard_param = self.param){
+            //console.log(standard_param);
+            standard_param["facets[countryRegionId][]"] = "WORL";
+            const param = new URLSearchParams(standard_param);
 
-            const res = await fetch(`${this.url}?${param.toString()}`);
+            const res = await fetch(`${self.url}?${param.toString()}`);
 
             if (!res.ok) {
                 throw new Error(`HTTP error ${res.status}`);
@@ -260,17 +292,45 @@ class Select{
 
             let period;
 
-            period = rows.reduce(
+            const date_beginning = rows.reduce(
                 (earliest, row) => row.period < earliest ? row.period : earliest,
                 rows[0].period
             );
-            this.date_beginning = period;
+            self.date_beginning = date_beginning;
 
-            period = rows.reduce(
+            const date_end = rows.reduce(
                 (latest, row) => row.period > latest ? row.period : latest,
                 rows[0].period
             );
-            this.date_end = period;
+            self.date_end = date_end;
+
+            if (standard_param != self.param){
+                return [self.date_beginning, self.date_end];
+
+            }
+        }
+
+        try {
+            if (!globalThis.production_data){
+                await define_first_and_last_date();
+
+            }else{
+                
+                const period_date_production = await define_first_and_last_date(globalThis.production_data);
+                const period_date_consumption = await define_first_and_last_date(globalThis.consumption_data);
+
+                console.log("period_date_production: ", period_date_production);
+                console.log("period_date_consumption: ", period_date_consumption);
+
+                this.date_beginning = period_date_production[0] > period_date_consumption[0] ? period_date_production[0] : period_date_consumption[0];
+                this.date_end = period_date_production[1] < period_date_consumption[1] ? period_date_production[1] : period_date_consumption[1];
+
+                console.log("this.date_beginning", this.date_beginning);
+                console.log("this.date_end", this.date_end);
+
+                return;
+            }
+            
 
         } catch (err) {
             console.error(err);
@@ -278,16 +338,16 @@ class Select{
         }
     }
 
-    async extract_quantity_and_unit_of_resources(countryIsoId, targetPeriod){
+    async extract_quantity_and_unit_of_resources(countryIsoId, targetPeriod, param = this.param){
 
 
         console.log("countryIsoId: ",countryIsoId);
         console.log("targetPeriod: ",targetPeriod);
-        this.param["facets[countryRegionId][]"] = countryIsoId;
+        param["facets[countryRegionId][]"] = countryIsoId;
 
         const apiKey = "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy";
 
-        const params = new URLSearchParams(this.param);
+        const params = new URLSearchParams(param);
 
         //TODO ver se o parâmetro this.param se encaixa aqui
         const url = `https://api.eia.gov/v2/international/data/?${params}`;
@@ -319,8 +379,7 @@ class Select{
     }
 
     populate_year(){
-
-        
+  
         for (let i = 0; i < this.select_year.length; i++) {
             const select = this.select_year[i];
 
@@ -471,7 +530,9 @@ class Select{
 
         let data;
         let info;
-        for (let x = 0; x < this.select_country.length; x++){
+
+        const check_if_actual_option_is_production_and_consumption = globalThis.production_data ? 2 : this.select_country.length
+        for (let x = 0; x < check_if_actual_option_is_production_and_consumption; x++){
             if (!document.getElementsByClassName("info")[x]){
                 console.log(x);
                 info = document.createElement("div");
@@ -485,6 +546,9 @@ class Select{
 
         async function listener(actual_select){
             let period;
+            let data_production;
+            let data_consumption;
+
 
             let country = document.getElementsByClassName("country")[actual_select]
             let year = document.getElementsByClassName("year")[actual_select]
@@ -512,6 +576,9 @@ class Select{
                         ? names.join(" and ")
                         : names.slice(0, -1).join(", ") + ", and " + names.at(-1)
                 );
+
+                self.div_info[actual_select].textContent = data
+
             }else{
                 if (document.querySelector(".month")){
                     period = `${year.value}-${String(month.value).padStart(2, "0")}`;
@@ -520,26 +587,36 @@ class Select{
                     period = year.value
 
                 }
-                data = await self.extract_quantity_and_unit_of_resources(country.value, period);
                 
+                if (!globalThis.production_data){
+                    data = await self.extract_quantity_and_unit_of_resources(country.value, period);
+                    self.div_info[actual_select].textContent = data;
+                }else{
+                    data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, globalThis.production_data);
+                    data_consumption = await self.extract_quantity_and_unit_of_resources(country.value, period, globalThis.consumption_data);
+
+                    self.div_info[0].textContent = data_production;
+                    self.div_info[1].textContent = data_consumption;
+                    
+                    console.log(data_production);
+                    console.log(data_consumption);
+                }   
             }
 
-            //console.log("This is data",data);
-            self.div_info[actual_select].textContent = data
         }
 
         function set_listeners_for_selects(actual_select){
-            self.select_country[actual_select].addEventListener("change", () => {
+            self.select_country[actual_select]?.addEventListener("change", () => {
                 listener(actual_select);
                 
             })
-            self.select_year[actual_select].addEventListener("change", () => {
+            self.select_year[actual_select]?.addEventListener("change", () => {
                 listener(actual_select);
 
             })
 
             if (document.querySelector(".month")){
-                self.select_month[actual_select].addEventListener("change", () => {
+                self.select_month[actual_select]?.addEventListener("change", () => {
                     listener(actual_select);
                 
                 })
