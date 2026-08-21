@@ -136,7 +136,10 @@ class Select{
                 return;
             }
             
-            this.make_graph_and_table("container3", this.list_of_info, this.param["facets[unit][]"]);
+            const unit_to_be_selected = globalThis.production_data ? globalThis.production_data["facets[unit][]"] : this.param["facets[unit][]"];
+            console.log("unit to be selected", unit_to_be_selected);
+            //this.make_graph_and_table("container3", this.list_of_info, this.param["facets[unit][]"]);
+            this.make_graph_and_table("container3", this.list_of_info, unit_to_be_selected);
         });
 
         document.getElementById("addBtn")?.addEventListener("click", () => {
@@ -655,17 +658,28 @@ class Select{
                 }
             }
 
-            if (has_data) {
+            if (has_data){
+                console.log("has data");
+
                 self.list_of_info = [];
+                if(!globalThis.production_data){
+                    for (let x = 0; x < self.div_info.length; x++){
+                        const country =
+                            self.select_country[x].selectedOptions[0].textContent;
 
-                for (let x = 0; x < self.div_info.length; x++) {
-                    const country =
-                        self.select_country[x].selectedOptions[0].textContent;
+                        const quantity =
+                            Number(self.div_info[x].textContent.split(" ")[0]);
 
-                    const quantity =
-                        Number(self.div_info[x].textContent.split(" ")[0]);
+                        self.list_of_info.push([country, quantity]);
+                    }
+                }else{
+                    const country = self.select_country[0].selectedOptions[0].textContent;
+                    const production = Number(self.div_info[0].textContent.split(" ")[0]);
+                    const consumption = Number(self.div_info[1].textContent.split(" ")[0]);
+                    self.list_of_info.push(["production", production]);
+                    self.list_of_info.push(["consumption", consumption]);
 
-                    self.list_of_info.push([country, quantity]);
+
                 }
             } else {
                 self.list_of_info = [];
@@ -675,7 +689,8 @@ class Select{
         }
     }
 
-    make_graph_and_table(container, list, measure = "test") {
+    make_graph_and_table(container, list, measure) {
+        console.log("measure: ", measure);
         const ctx = document.getElementById(container);
 
         const existingChart = Chart.getChart(ctx);
@@ -743,13 +758,14 @@ class Select{
         // Create the table
         const table = document.createElement('table');
 
+        const header = globalThis.production_data ? "" : "Country";
         // Create the table header
         table.innerHTML = `
             <thead>
                 <tr>
                     <th>Position</th>
-                    <th>Country</th>
-                    <th>${this.param["facets[unit][]"]}</th>
+                    <th>${header}</th>
+                    <th>${measure}</th>
                 </tr>
             </thead>
         `;
