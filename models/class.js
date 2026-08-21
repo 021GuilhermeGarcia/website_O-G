@@ -19,7 +19,7 @@ class Select{
         this.set_API_parameter();
         this.starter_async_fun = this.init().then(() => {
             this.populate_container2_by_querying_API();
-            this.populate_container3_graph();
+            //this.populate_container3_graph();
             this.put_listener_on_select();
         }); 
 
@@ -138,7 +138,6 @@ class Select{
             
             const unit_to_be_selected = globalThis.production_data ? globalThis.production_data["facets[unit][]"] : this.param["facets[unit][]"];
             console.log("unit to be selected", unit_to_be_selected);
-            //this.make_graph_and_table("container3", this.list_of_info, this.param["facets[unit][]"]);
             this.make_graph_and_table("container3", this.list_of_info, unit_to_be_selected);
         });
 
@@ -580,7 +579,16 @@ class Select{
                         : names.slice(0, -1).join(", ") + ", and " + names.at(-1)
                 );
 
-                self.div_info[actual_select].textContent = data
+                self.div_info[actual_select].textContent = data;
+                if (self.list_of_info.length ===0){
+                    // nothing
+                }else if(self.list_of_info.length === 1){
+                    self.list_of_info.splice(actual_select);
+                }else{
+                    self.list_of_info.splice(actual_select, actual_select);
+                }
+                
+                console.log("actual select and self.list_of_info", actual_select, self.list_of_info);
 
             }else{
                 if (document.querySelector(".month")){
@@ -592,14 +600,24 @@ class Select{
                 }
                 
                 if (!globalThis.production_data){
+                    // TODO: Implementar uma tela de loading
                     data = await self.extract_quantity_and_unit_of_resources(country.value, period);
                     self.div_info[actual_select].textContent = data;
+                    const country_ = country.selectedOptions[0].textContent;
+                    const quantity_ = Number(data.split(" ")[0]);
+
+                    self.list_of_info.push([country_, quantity_]);
+                    
+
                 }else{
                     data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, globalThis.production_data);
                     data_consumption = await self.extract_quantity_and_unit_of_resources(country.value, period, globalThis.consumption_data);
 
                     self.div_info[0].textContent = data_production;
                     self.div_info[1].textContent = data_consumption;
+
+                    self.list_of_info.push(["production", data_production]); 
+                    self.list_of_info.push(["consumption", data_consumption]);
                     
                     console.log(data_production);
                     console.log(data_consumption);
@@ -633,7 +651,7 @@ class Select{
 
     }
 
-    populate_container3_graph(add_one_more = false) {
+    /*populate_container3_graph(add_one_more = false) {
         const self = this;
 
         const observer = new MutationObserver(check_if_all_info_div_has_actual_data);
@@ -676,7 +694,7 @@ class Select{
                     const country = self.select_country[0].selectedOptions[0].textContent;
                     const production = Number(self.div_info[0].textContent.split(" ")[0]);
                     const consumption = Number(self.div_info[1].textContent.split(" ")[0]);
-                    self.list_of_info.push(["production", production]);
+                    self.list_of_info.push(["production", production]); 
                     self.list_of_info.push(["consumption", consumption]);
 
 
@@ -687,7 +705,7 @@ class Select{
 
             console.log(self.list_of_info);
         }
-    }
+    }*/
 
     make_graph_and_table(container, list, measure) {
         console.log("measure: ", measure);
