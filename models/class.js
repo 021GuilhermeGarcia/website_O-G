@@ -61,7 +61,6 @@ class Select{
             document.getElementById(this.select_option_id).value = "option2";
         }
 
-        console.log(this.select_option_id.value);
         const month =
         (actual_option.value === "option1" || actual_option.value === "option2")
             ? `
@@ -128,8 +127,6 @@ class Select{
         container.innerHTML = comparisonHTML;
 
         document.getElementById("compareBtn")?.addEventListener("click", () => {
-            console.log("button clicked");
-            console.log(this.list_of_info);
             
             if (this.list_of_info.length === 0){
                 alert("All fields should be fullfilled!");
@@ -137,7 +134,6 @@ class Select{
             }
             
             const unit_to_be_selected = globalThis.production_data ? globalThis.production_data["facets[unit][]"] : this.param["facets[unit][]"];
-            console.log("unit to be selected", unit_to_be_selected);
             this.make_graph_and_table("container3", this.list_of_info, unit_to_be_selected);
         });
 
@@ -170,29 +166,27 @@ class Select{
             }))
             .sort((a, b) => a.name.localeCompare(b.name));
 
-            countryDetails.forEach(country => {
-                for (let i = 0; i < this.select_country.length; i++) {
-                    const select = this.select_country[i];
+            for (let i = 0; i < this.select_country.length; i++){
+                const select = this.select_country[i];
+                if (select.options.length > 1) continue
+                
+                for (let c = 0; c < countryDetails.length; c++){
                     const option = document.createElement("option");
-                    option.value = country.iso3;
-                    option.textContent = country.name;
+                    option.value = countryDetails[c].iso3;
+                    option.textContent = countryDetails[c].name;
                     select.appendChild(option);
-                }
-                if (this.select_country.length <= 0){
-                    console.log("contents of countries not loaded");
-                    return;
-                } else if (this.countryRegionID && typeof this.countryRegionID === "string") {
-                    this.select_country[0].value = this.countryRegionID;
-                } else if (Array.isArray(this.countryRegionID)){
-                    for(let x= 0; x<this.countryRegionID.length; x++){
-                        console.log(x);
-                        console.log(this.select_country[x].value);
-                        this.select_country[x].value = this.countryRegionID[x];
 
-                    }
                 }
-            })
-    });
+            }
+            if (this.countryRegionID && typeof this.countryRegionID === "string"){
+                this.select_country[0].value = this.countryRegionID;
+            } else if(Array.isArray(this.countryRegionID)){
+                for(let x= 0; x<this.countryRegionID.length; x++){
+                    this.select_country[x].value = this.countryRegionID[x];
+
+                }
+            }
+        });
     }
 
     modify_param_var(frequency, activityID, productID, unit, desire_return=false){
@@ -237,7 +231,6 @@ class Select{
                 let consumption_data = this.modify_param_var("annual", "2", "54", "TBPD", true);
 
                 globalThis.production_data = production_data;
-                console.log("this is production data", production_data);
                 globalThis.consumption_data = consumption_data;
                 // production and consumption
                 break;
@@ -277,7 +270,6 @@ class Select{
     async define_first_and_last_date_API(){
         self = this;
         async function define_first_and_last_date(standard_param = self.param){
-            //console.log(standard_param);
             standard_param["facets[countryRegionId][]"] = "WORL";
             const param = new URLSearchParams(standard_param);
 
@@ -321,14 +313,8 @@ class Select{
                 const period_date_production = await define_first_and_last_date(globalThis.production_data);
                 const period_date_consumption = await define_first_and_last_date(globalThis.consumption_data);
 
-                console.log("period_date_production: ", period_date_production);
-                console.log("period_date_consumption: ", period_date_consumption);
-
                 this.date_beginning = period_date_production[0] > period_date_consumption[0] ? period_date_production[0] : period_date_consumption[0];
                 this.date_end = period_date_production[1] < period_date_consumption[1] ? period_date_production[1] : period_date_consumption[1];
-
-                console.log("this.date_beginning", this.date_beginning);
-                console.log("this.date_end", this.date_end);
 
                 return;
             }
@@ -342,9 +328,6 @@ class Select{
 
     async extract_quantity_and_unit_of_resources(countryIsoId, targetPeriod, param = this.param){
 
-
-        console.log("countryIsoId: ",countryIsoId);
-        console.log("targetPeriod: ",targetPeriod);
         param["facets[countryRegionId][]"] = countryIsoId;
 
         const apiKey = "TdKM7xeD3jRTzMCABJif9UzWCfvsyBgErTN4YaMy";
@@ -536,7 +519,6 @@ class Select{
         const check_if_actual_option_is_production_and_consumption = globalThis.production_data ? 2 : this.select_country.length
         for (let x = 0; x < check_if_actual_option_is_production_and_consumption; x++){
             if (!document.getElementsByClassName("info")[x]){
-                console.log(x);
                 info = document.createElement("div");
                 info.className = "info";
 
@@ -588,7 +570,6 @@ class Select{
                     self.list_of_info.splice(actual_select, actual_select);
                 }
                 
-                console.log("actual select and self.list_of_info", actual_select, self.list_of_info);
 
             }else{
                 if (document.querySelector(".month")){
@@ -606,21 +587,39 @@ class Select{
                     const country_ = country.selectedOptions[0].textContent;
                     const quantity_ = Number(data.split(" ")[0]);
 
-                    self.list_of_info.push([country_, quantity_]);
+                    console.log(self.list_of_info);
+                    if (self.list_of_info[actual_select] != undefined){
+                        console.log("Entered");
+                        self.list_of_info[actual_select] = [country_, quantity_];
+
+                    }else{
+                        self.list_of_info.push([country_, quantity_]);
+
+                    }
                     
 
                 }else{
+                    //TODO: implementar uma tela de loading
                     data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, globalThis.production_data);
                     data_consumption = await self.extract_quantity_and_unit_of_resources(country.value, period, globalThis.consumption_data);
 
                     self.div_info[0].textContent = data_production;
                     self.div_info[1].textContent = data_consumption;
 
-                    self.list_of_info.push(["production", data_production]); 
-                    self.list_of_info.push(["consumption", data_consumption]);
+                    if (self.list_of_info[0] != undefined){
+                        self.list_of_info[0] = ["production", Number(data_production.split(" ")[0])];
+                    }else{  
+                        self.list_of_info.push(["production", Number(data_production.split(" ")[0])]);
+                    }
+
+                    if (self.list_of_info[1] != undefined){
+                        self.list_of_info[1] = ["consumption", Number(data_consumption.split(" ")[0])];
+                    }else{  
+                        self.list_of_info.push(["consumption", Number(data_consumption.split(" ")[0])]);
+                    }
                     
-                    console.log(data_production);
-                    console.log(data_consumption);
+                    console.log(self.list_of_info);
+                    
                 }   
             }
 
@@ -649,66 +648,9 @@ class Select{
             
         }
 
-    }
-
-    /*populate_container3_graph(add_one_more = false) {
-        const self = this;
-
-        const observer = new MutationObserver(check_if_all_info_div_has_actual_data);
-
-        for (const info of this.div_info) {
-            observer.observe(info, {
-                childList: true,
-                subtree: true,
-                characterData: true
-            });
-        }
-
-        function check_if_all_info_div_has_actual_data() {
-            let has_data = true;
-
-            for (let x = 0; x < self.div_info.length; x++) {
-                const text = self.div_info[x].textContent.trim();
-
-                if (!text || isNaN(Number(text.split(" ")[0]))) {
-                    has_data = false;
-                    break;
-                }
-            }
-
-            if (has_data){
-                console.log("has data");
-
-                self.list_of_info = [];
-                if(!globalThis.production_data){
-                    for (let x = 0; x < self.div_info.length; x++){
-                        const country =
-                            self.select_country[x].selectedOptions[0].textContent;
-
-                        const quantity =
-                            Number(self.div_info[x].textContent.split(" ")[0]);
-
-                        self.list_of_info.push([country, quantity]);
-                    }
-                }else{
-                    const country = self.select_country[0].selectedOptions[0].textContent;
-                    const production = Number(self.div_info[0].textContent.split(" ")[0]);
-                    const consumption = Number(self.div_info[1].textContent.split(" ")[0]);
-                    self.list_of_info.push(["production", production]); 
-                    self.list_of_info.push(["consumption", consumption]);
-
-
-                }
-            } else {
-                self.list_of_info = [];
-            }
-
-            console.log(self.list_of_info);
-        }
-    }*/
+    }  
 
     make_graph_and_table(container, list, measure) {
-        console.log("measure: ", measure);
         const ctx = document.getElementById(container);
 
         const existingChart = Chart.getChart(ctx);
@@ -818,15 +760,12 @@ class Select{
 
         let list_of_selected_countries = [];
         document.getElementById("mySelect").addEventListener("change", () => {
-            console.log("value changed");
 
             if (document.getElementById("country1")){
-                console.log("Entered");
                 const count = document.querySelectorAll(".country").length;
                 for (let x = 1; x<=count ; x++){
                     list_of_selected_countries.push(document.getElementById(`country${x}`).value);
                 }
-                console.log(list_of_selected_countries);
 
                 new Select(
                 "container",
