@@ -13,13 +13,14 @@ class Select{
         this.date_beginning;
         this.date_end;
         this.list_of_info = []
+        this.production_data = null;
+        this.consumption_data = null;
         this.wipe_elements_from_previous_select_class_call();
         this.populate_container1_by_creating_html();
         this.populate_country();
         this.set_API_parameter();
         this.starter_async_fun = this.init().then(() => {
             this.populate_container2_by_querying_API();
-            //this.populate_container3_graph();
             this.put_listener_on_select();
         }); 
 
@@ -70,10 +71,10 @@ class Select{
             `
         : "";
 
-        const only_country_and_year = ["option5", "option8", "option11", "option14"]
+        const only_one_country_and_one_year = ["option5", "option8", "option11", "option14"]
         .includes(actual_option.value);
 
-        const comparisonHTML = !only_country_and_year ? `
+        const comparisonHTML = !only_one_country_and_one_year ? `
         <div class="comparison">
             <div>
                 <label>Country:</label>
@@ -133,7 +134,7 @@ class Select{
                 return;
             }
             
-            const unit_to_be_selected = globalThis.production_data ? globalThis.production_data["facets[unit][]"] : this.param["facets[unit][]"];
+            const unit_to_be_selected = this.production_data ? this.production_data["facets[unit][]"] : this.param["facets[unit][]"];
             this.make_graph_and_table("container3", this.list_of_info, unit_to_be_selected);
         });
 
@@ -230,8 +231,8 @@ class Select{
                 let production_data =  this.modify_param_var("annual", "1", "54", "TBPD", true);
                 let consumption_data = this.modify_param_var("annual", "2", "54", "TBPD", true);
 
-                globalThis.production_data = production_data;
-                globalThis.consumption_data = consumption_data;
+                this.production_data = production_data;
+                this.consumption_data = consumption_data;
                 // production and consumption
                 break;
             case 'option6'://
@@ -305,13 +306,13 @@ class Select{
         }
 
         try {
-            if (!globalThis.production_data){
+            if (!this.production_data){
                 await define_first_and_last_date();
 
             }else{
                 
-                const period_date_production = await define_first_and_last_date(globalThis.production_data);
-                const period_date_consumption = await define_first_and_last_date(globalThis.consumption_data);
+                const period_date_production = await define_first_and_last_date(this.production_data);
+                const period_date_consumption = await define_first_and_last_date(this.consumption_data);
 
                 this.date_beginning = period_date_production[0] > period_date_consumption[0] ? period_date_production[0] : period_date_consumption[0];
                 this.date_end = period_date_production[1] < period_date_consumption[1] ? period_date_production[1] : period_date_consumption[1];
@@ -516,7 +517,15 @@ class Select{
         let data;
         let info;
 
-        const check_if_actual_option_is_production_and_consumption = globalThis.production_data ? 2 : this.select_country.length
+        if (this.production_data){
+            console.log("Initialized: ", this.production_data);
+
+        }else{
+            console.log("Not Initialized: ", this.production_data);
+
+        }
+        const check_if_actual_option_is_production_and_consumption = this.production_data ? 2 : this.select_country.length
+        console.log("if production and consumption then 2", check_if_actual_option_is_production_and_consumption);
         for (let x = 0; x < check_if_actual_option_is_production_and_consumption; x++){
             if (!document.getElementsByClassName("info")[x]){
                 info = document.createElement("div");
@@ -580,7 +589,7 @@ class Select{
 
                 }
                 
-                if (!globalThis.production_data){
+                if (!self.production_data){
                     // TODO: Implementar uma tela de loading
                     data = await self.extract_quantity_and_unit_of_resources(country.value, period);
                     self.div_info[actual_select].textContent = data;
@@ -600,8 +609,8 @@ class Select{
 
                 }else{
                     //TODO: implementar uma tela de loading
-                    data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, globalThis.production_data);
-                    data_consumption = await self.extract_quantity_and_unit_of_resources(country.value, period, globalThis.consumption_data);
+                    data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, self.production_data);
+                    data_consumption = await self.extract_quantity_and_unit_of_resources(country.value, period, self.consumption_data);
 
                     self.div_info[0].textContent = data_production;
                     self.div_info[1].textContent = data_consumption;
@@ -822,7 +831,6 @@ class Select{
             this.populate_month();
         }
         this.populate_container2_by_querying_API();
-        this.populate_container3_graph();
 
     }
 }
