@@ -10,6 +10,7 @@ class Select{
         this.select_option_id = select_option_id;
         this.url = "https://api.eia.gov/v2/international/data/";
         this.param = "";
+        this.tooltip = "";
         this.actual_year = new Date().getFullYear();
         this.date_beginning;
         this.date_end;
@@ -106,8 +107,10 @@ class Select{
             <div id="country_to_be_added"></div>
 
             <button id="addBtn">Add country</button>
-            <button id="compareBtn">Compare</button>
             <button id="removeBtn">Remove</button>
+            <button id="compareBtn">Compare</button>
+            <span id="info">ⓘ</span>
+            
         </div>
         ` :`
         <div class="comparison">
@@ -122,7 +125,7 @@ class Select{
             </select>
 
             <button id="compareBtn">Compare</button>
-
+            
         </div>`;
 
         const container = document.getElementById(this.id_container1);
@@ -162,6 +165,22 @@ class Select{
 
         })
 
+        this.hover_mouse_info_icon("info");
+
+        document.getElementById("info")?.addEventListener("mouseenter", () => {
+            this.tooltip.style.display = "inline";
+        });
+
+        document.getElementById("info")?.addEventListener("mouseleave", () => {
+            this.tooltip.style.display = "none";
+        });
+
+        document.getElementById("info")?.addEventListener("mousemove", (event) => {
+            this.tooltip.style.left = event.clientX + 10 + "px";
+            this.tooltip.style.top = event.clientY + 10 + "px";
+        });
+        
+        this.info
         this.select_country = document.getElementsByClassName("country");
         this.select_year = document.getElementsByClassName("year");
         this.select_month = document.getElementsByClassName("month");
@@ -621,16 +640,23 @@ class Select{
                     const quantity_ = Number(data.split(" ")[0]);
 
                     console.log(self.list_of_info);
+                    console.log("quantity",quantity_);
+
                     if (self.list_of_info[actual_select] != undefined){
-                        console.log("Entered");
-                        self.list_of_info[actual_select] = [country_, quantity_];
+                        
+                        if (!Number.isNaN(quantity_)){
+                            self.list_of_info[actual_select] = [country_, quantity_];
+                        }else{
+                            console.log("Quantity is actually Nan")
+                            self.list_of_info[actual_select] = [];
+                        }
 
                     }else{
-                        self.list_of_info.push([country_, quantity_]);
+                        if (!Number.isNaN(quantity_)){
+                            self.list_of_info.push([country_, quantity_]);
+                        }
 
                     }
-                    
-
                 }else{
                     //TODO: implementar uma tela de loading
                     data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, self.production_data);
@@ -639,20 +665,21 @@ class Select{
                     self.div_info[0].textContent = data_production;
                     self.div_info[1].textContent = data_consumption;
 
-                    if (self.list_of_info[0] != undefined){
+                    if (!Number.isNaN(data_production) && !Number.isNaN(data_consumption)){
+                        if (self.list_of_info[0] != undefined){
                         self.list_of_info[0] = ["production", Number(data_production.split(" ")[0])];
-                    }else{  
-                        self.list_of_info.push(["production", Number(data_production.split(" ")[0])]);
-                    }
+                        }else{  
+                            self.list_of_info.push(["production", Number(data_production.split(" ")[0])]);
+                        }
 
-                    if (self.list_of_info[1] != undefined){
-                        self.list_of_info[1] = ["consumption", Number(data_consumption.split(" ")[0])];
-                    }else{  
-                        self.list_of_info.push(["consumption", Number(data_consumption.split(" ")[0])]);
+                        if (self.list_of_info[1] != undefined){
+                            self.list_of_info[1] = ["consumption", Number(data_consumption.split(" ")[0])];
+                        }else{  
+                            self.list_of_info.push(["consumption", Number(data_consumption.split(" ")[0])]);
+                        }
                     }
                     
                     console.log(self.list_of_info);
-                    
                 }   
             }
 
@@ -852,12 +879,38 @@ class Select{
         this.populate_country();
         this.populate_year();
         if (document.querySelector(".month")){
-            //TODO: pular os meses que já tem data
             this.populate_month();
         }
         this.populate_container2_by_querying_API();
 
     }
+
+    hover_mouse_info_icon(info_id){
+        const info = document.getElementById(info_id);
+        info.style.cursor = "default";
+
+        this.tooltip = document.createElement("span");
+
+        this.tooltip.style.position = "fixed";
+        this.tooltip.style.pointerEvents = "none";
+        this.tooltip.style.display = "none";
+
+        const question = document.createElement("span");
+        question.textContent = "? ";
+
+        const text = document.createElement("span");
+        text.textContent =
+            "\nThe totalitarian info of these countries' data are defined through " +
+            "the website 'eia.gov'.\n" +
+            "To check them, go to 'Geography > International > Data'.";
+
+        text.style.whiteSpace = "pre-line";
+        this.tooltip.appendChild(question);
+        this.tooltip.appendChild(text);
+
+        document.body.appendChild(this.tooltip);
+    }
+
 }
 
 
