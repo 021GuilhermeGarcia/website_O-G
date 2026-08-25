@@ -209,16 +209,8 @@ class Select{
 
             for (let i = 0; i < this.select_country.length; i++){
                 const select = this.select_country[i];
-                console.log(`this.select_country[${i}]`);
-                console.log("select.options.length", select.options.length);
-
-                if (select.options.length > 1){
-                    console.log("It shall continue");
-                }
 
                 if (select.options.length > 1) continue
-                
-                console.log("after continue");
                 
                 for (let c = 0; c < countryDetails.length; c++){
                     const option = document.createElement("option");
@@ -233,7 +225,7 @@ class Select{
                 this.select_country[0].value = this.countryRegionID;
             } else if(Array.isArray(this.countryRegionID)){
                 for(let x= 0; x<this.countryRegionID.length; x++){
-                    console.log("Array is array");
+                    
                     this.select_country[x].value = this.countryRegionID[x];
 
                 } 
@@ -290,8 +282,8 @@ class Select{
                 this.modify_param_var("annual", "2", "26", "BCF");
                 break;
             case 'option8':
-                this.production_data = this.modify_param_var("annual", "1", "26", "BCF");
-                this.consumption_data = this.modify_param_var("annual", "2", "26", "BCF");;
+                this.production_data = this.modify_param_var("annual", "1", "26", "BCF",true);
+                this.consumption_data = this.modify_param_var("annual", "2", "26", "BCF",true);
                 // production and consumption
                 break;
             case 'option9':
@@ -301,8 +293,8 @@ class Select{
                 this.modify_param_var("annual", "2", "7", "TST");
                 break;
             case 'option11':
-                this.production_data = this.modify_param_var("annual", "1", "7", "TST");;
-                this.consumption_data = this.modify_param_var("annual", "2", "7", "TST");;
+                this.production_data = this.modify_param_var("annual", "1", "7", "TST",true);
+                this.consumption_data = this.modify_param_var("annual", "2", "7", "TST",true);
                 // production and consumption
                 break;
             case 'option12':
@@ -312,8 +304,9 @@ class Select{
                 this.modify_param_var("annual", "2", "2", "BKWH");
                 break;
             case 'option14':
-                this.production_data = this.modify_param_var("annual", "12", "2", "BKWH");
-                this.consumption_data = this.modify_param_var("annual", "2", "2", "BKWH");
+                console.log("Option14 entered");
+                this.production_data = this.modify_param_var("annual", "12", "2", "BKWH",true);
+                this.consumption_data = this.modify_param_var("annual", "2", "2", "BKWH",true);
                 // production and consumption
                 break;
         }
@@ -570,7 +563,6 @@ class Select{
         let info;
 
         const check_if_actual_option_is_production_and_consumption = this.production_data ? 2 : this.select_country.length
-        console.log("if production and consumption then 2", check_if_actual_option_is_production_and_consumption);
         for (let x = 0; x < check_if_actual_option_is_production_and_consumption; x++){
             if (!document.getElementsByClassName("info")[x]){
                 info = document.createElement("div");
@@ -641,9 +633,6 @@ class Select{
                     const country_ = country.selectedOptions[0].textContent;
                     const quantity_ = Number(data.split(" ")[0]);
 
-                    console.log(self.list_of_info);
-                    console.log("quantity",quantity_);
-
                     if (self.list_of_info[actual_select] != undefined){
                         
                         if (!Number.isNaN(quantity_)){
@@ -661,11 +650,16 @@ class Select{
                     }
                 }else{
                     //TODO: implementar uma tela de loading
+
+                    console.log("Entered here");
                     data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, self.production_data);
                     data_consumption = await self.extract_quantity_and_unit_of_resources(country.value, period, self.consumption_data);
 
                     self.div_info[0].textContent = data_production;
                     self.div_info[1].textContent = data_consumption;
+
+                    console.log("data_production: ", data_production);
+                    console.log("data_consumption ", data_consumption);
 
                     if (!Number.isNaN(data_production) && !Number.isNaN(data_consumption)){
                         if (self.list_of_info[0] != undefined){
