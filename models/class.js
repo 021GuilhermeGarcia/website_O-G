@@ -125,6 +125,7 @@ class Select{
             </select>
 
             <button id="compareBtn">Compare</button>
+            <span id="info">ⓘ</span>
             
         </div>`;
 
@@ -278,11 +279,8 @@ class Select{
                 this.modify_param_var("annual", "2", "54", "TBPD");
                 break;
             case 'option5':
-                let production_data =  this.modify_param_var("annual", "1", "54", "TBPD", true);
-                let consumption_data = this.modify_param_var("annual", "2", "54", "TBPD", true);
-
-                this.production_data = production_data;
-                this.consumption_data = consumption_data;
+                this.production_data = this.modify_param_var("annual", "1", "54", "TBPD", true);;
+                this.consumption_data = this.modify_param_var("annual", "2", "54", "TBPD", true);;
                 // production and consumption
                 break;
             case 'option6'://
@@ -292,6 +290,8 @@ class Select{
                 this.modify_param_var("annual", "2", "26", "BCF");
                 break;
             case 'option8':
+                this.production_data = this.modify_param_var("annual", "1", "26", "BCF");
+                this.consumption_data = this.modify_param_var("annual", "2", "26", "BCF");;
                 // production and consumption
                 break;
             case 'option9':
@@ -301,6 +301,8 @@ class Select{
                 this.modify_param_var("annual", "2", "7", "TST");
                 break;
             case 'option11':
+                this.production_data = this.modify_param_var("annual", "1", "7", "TST");;
+                this.consumption_data = this.modify_param_var("annual", "2", "7", "TST");;
                 // production and consumption
                 break;
             case 'option12':
@@ -310,10 +312,10 @@ class Select{
                 this.modify_param_var("annual", "2", "2", "BKWH");
                 break;
             case 'option14':
+                this.production_data = this.modify_param_var("annual", "12", "2", "BKWH");
+                this.consumption_data = this.modify_param_var("annual", "2", "2", "BKWH");
                 // production and consumption
                 break;
-
-
         }
         
     }
@@ -896,7 +898,7 @@ class Select{
         this.tooltip.style.display = "none";
 
         const question = document.createElement("span");
-        question.textContent = "? ";
+        question.textContent = "  ?";
 
         const text = document.createElement("span");
         text.textContent =
