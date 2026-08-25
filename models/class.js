@@ -2,6 +2,7 @@
 //TODO: verificar pq a demora pra chamada de API e desenvolver solução para rapidez do processo
 class Select{
     constructor(id_container1, id_container2, id_container3, select_option_id, countryRegionID ){
+        this.first_time_calling = true;
         this.id_container1 = id_container1;
         this.id_container2 = id_container2;
         this.id_container3 = id_container3;
@@ -12,7 +13,7 @@ class Select{
         this.actual_year = new Date().getFullYear();
         this.date_beginning;
         this.date_end;
-        this.list_of_info = []
+        this.list_of_info = [];
         this.production_data = null;
         this.consumption_data = null;
         this.wipe_elements_from_previous_select_class_call();
@@ -77,7 +78,7 @@ class Select{
         const comparisonHTML = !only_one_country_and_one_year ? `
         <div class="comparison">
             <div>
-                <label>Country:</label>
+                <label class="label_country">Country:</label>
                 <select class="country">
                     <option>Select Country</option>
                 </select>
@@ -89,10 +90,8 @@ class Select{
                 ${month}
             </div>
 
-            <button id="compareBtn">Compare</button>
-
             <div>
-                <label>Country:</label>
+                <label class="label_country">Country:</label>
                 <select  class="country">
                     <option>Select Country</option>
                 </select>
@@ -107,6 +106,8 @@ class Select{
             <div id="country_to_be_added"></div>
 
             <button id="addBtn">Add country</button>
+            <button id="compareBtn">Compare</button>
+            <button id="removeBtn">Remove</button>
         </div>
         ` :`
         <div class="comparison">
@@ -130,7 +131,7 @@ class Select{
         document.getElementById("compareBtn")?.addEventListener("click", () => {
             
             if (this.list_of_info.length === 0){
-                alert("All fields should be fullfilled!");
+                alert("At least two countries required with all fields fulfilled!");
                 return;
             }
             
@@ -143,9 +144,28 @@ class Select{
 
         })
 
+        document.getElementById("removeBtn")?.addEventListener("click", () => {
+            if (this.select_country.length > 2){
+
+                if (this.list_of_info.length === this.select_country.length){
+                    this.list_of_info.pop();
+
+                }
+
+                this.select_country[this.select_country.length - 1]?.remove();
+                this.select_year[this.select_year.length - 1]?.remove();
+                this.select_month[this.select_month.length - 1]?.remove();
+                this.div_info[this.div_info.length -1]?.remove();
+                this.lable_country[this.lable_country.length -1]?.remove();
+
+            }
+
+        })
+
         this.select_country = document.getElementsByClassName("country");
         this.select_year = document.getElementsByClassName("year");
         this.select_month = document.getElementsByClassName("month");
+        this.lable_country = document.getElementsByClassName("label_country");
     }
 
     populate_country(){
@@ -169,7 +189,16 @@ class Select{
 
             for (let i = 0; i < this.select_country.length; i++){
                 const select = this.select_country[i];
+                console.log(`this.select_country[${i}]`);
+                console.log("select.options.length", select.options.length);
+
+                if (select.options.length > 1){
+                    console.log("It shall continue");
+                }
+
                 if (select.options.length > 1) continue
+                
+                console.log("after continue");
                 
                 for (let c = 0; c < countryDetails.length; c++){
                     const option = document.createElement("option");
@@ -179,13 +208,15 @@ class Select{
 
                 }
             }
+
             if (this.countryRegionID && typeof this.countryRegionID === "string"){
                 this.select_country[0].value = this.countryRegionID;
             } else if(Array.isArray(this.countryRegionID)){
                 for(let x= 0; x<this.countryRegionID.length; x++){
+                    console.log("Array is array");
                     this.select_country[x].value = this.countryRegionID[x];
 
-                }
+                } 
             }
         });
     }
@@ -517,13 +548,6 @@ class Select{
         let data;
         let info;
 
-        if (this.production_data){
-            console.log("Initialized: ", this.production_data);
-
-        }else{
-            console.log("Not Initialized: ", this.production_data);
-
-        }
         const check_if_actual_option_is_production_and_consumption = this.production_data ? 2 : this.select_country.length
         console.log("if production and consumption then 2", check_if_actual_option_is_production_and_consumption);
         for (let x = 0; x < check_if_actual_option_is_production_and_consumption; x++){
@@ -727,7 +751,7 @@ class Select{
         // Create the table
         const table = document.createElement('table');
 
-        const header = globalThis.production_data ? "" : "Country";
+        const header = this.production_data ? "" : "Country";
         // Create the table header
         table.innerHTML = `
             <thead>
@@ -809,7 +833,7 @@ class Select{
         const comparisonHTML = `
         <div class="comparison">
             <div>
-                <label>Country:</label>
+                <label class="label_country">Country:</label>
                 <select class="country">
                     <option>Select Country</option>
                 </select>
@@ -824,10 +848,11 @@ class Select{
         `;
 
         const container = document.getElementById("country_to_be_added");
-        container.innerHTML += comparisonHTML;
+        container.insertAdjacentHTML('beforeend', comparisonHTML);
         this.populate_country();
         this.populate_year();
         if (document.querySelector(".month")){
+            //TODO: pular os meses que já tem data
             this.populate_month();
         }
         this.populate_container2_by_querying_API();
