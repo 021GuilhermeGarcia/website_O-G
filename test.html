@@ -1,60 +1,71 @@
-<div id="loading-info"></div>
+<div class= "loading"></div>
 
 <script>
-  const loadingInfo = document.getElementById("loading-info");
 
-  let dotCount = 1;
-  let extraMessage = "";
-  let animationStopped = false;
-  let expectedText = "";
+/*function loading_screen(index){
+    const loadingInfo = document.getElementsByClassName("loading")[index];
 
-  function render() {
-    if (animationStopped) return;
+    let dotCount = 1;
+    let extraMessage = "";
+    let animationStopped = false;
+    let expectedText = "";
 
-    expectedText =
-      "Loading" + ".".repeat(dotCount) + extraMessage;
+    function render() {
+        if (animationStopped) return;
 
-    loadingInfo.textContent = expectedText;
-  }
+        expectedText =
+        "Loading" + ".".repeat(dotCount) + extraMessage;
 
-  const observer = new MutationObserver(() => {
-    if (animationStopped) return;
-
-    // If the current text wasn't produced by render(),
-    // something external changed it, so stop the animation.
-    if (loadingInfo.textContent !== expectedText) {
-      animationStopped = true;
-      clearInterval(dotInterval);
-      observer.disconnect();
+        loadingInfo.textContent = expectedText;
     }
-  });
 
-  observer.observe(loadingInfo, {
-    childList: true,
-    characterData: true,
-    subtree: true
-  });
+    const observer = new MutationObserver(() => {
+        if (animationStopped) return;
 
-  const dotInterval = setInterval(() => {
-    dotCount = dotCount >= 3 ? 1 : dotCount + 1;
+        // If the current text wasn't produced by render(),
+        // something external changed it, so stop the animation.
+        if (loadingInfo.textContent !== expectedText) {
+        animationStopped = true;
+        clearInterval(dotInterval);
+        observer.disconnect();
+        }
+    });
+
+    observer.observe(loadingInfo, {
+        childList: true,
+        characterData: true,
+        subtree: true
+    });
+
+    const dotInterval = setInterval(() => {
+        dotCount = dotCount >= 3 ? 1 : dotCount + 1;
+        render();
+    }, 500);
+
+    setTimeout(() => {
+        if (animationStopped) return;
+
+        extraMessage = " This may take a while";
+        render();
+    }, 40000);
+
+    setTimeout(() => {
+        if (animationStopped) return;
+
+        extraMessage = " Recommended to load the website again";
+        render();
+    }, 75000);
+
     render();
-  }, 500);
+}
+  
+loading_screen(0)
 
-  setTimeout(() => {
-    if (animationStopped) return;
+//loadingInfo.textContent = "stopped";*/
 
-    extraMessage = " This may take a while";
-    render();
-  }, 5000);
+const var1 = "No data available";
+const var2 = 1;
 
-  setTimeout(() => {
-    if (animationStopped) return;
-
-    extraMessage = " Recommended to load the website again";
-    render();
-  }, 10000);
-
-  render();
-
-  //loadingInfo.textContent = "stopped";
+console.log(Number.isNaN(var1))
+console.log(Number.isNaN(var2))
 </script>

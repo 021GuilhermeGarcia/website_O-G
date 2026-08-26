@@ -134,13 +134,20 @@ class Select{
 
         document.getElementById("compareBtn")?.addEventListener("click", () => {
             
-            if (this.list_of_info.length === 0){
-                alert("At least two countries required with all fields fulfilled!");
-                return;
+            if (this.list_of_info.length < 2){
+                if(!this.production_data){
+                    alert("At least two countries required with all fields fulfilled with available! Let all components load.");
+                }
+                else{
+                    alert("Choose a available year or let all components load.");
+                }
+            }else{
+                const unit_to_be_selected = this.production_data ? this.production_data["facets[unit][]"] : this.param["facets[unit][]"];
+                this.make_graph_and_table("container3", this.list_of_info, unit_to_be_selected);
+
             }
             
-            const unit_to_be_selected = this.production_data ? this.production_data["facets[unit][]"] : this.param["facets[unit][]"];
-            this.make_graph_and_table("container3", this.list_of_info, unit_to_be_selected);
+            
         });
 
         document.getElementById("addBtn")?.addEventListener("click", () => {
@@ -563,7 +570,7 @@ class Select{
         for (let x = 0; x < check_if_actual_option_is_production_and_consumption; x++){
             if (!document.getElementsByClassName("info")[x]){
                 info = document.createElement("div");
-                info.className = "info";
+                info.className = "info loading";
 
                 document.getElementById(self.id_container2).appendChild(info);
             }
@@ -575,7 +582,6 @@ class Select{
             let period;
             let data_production;
             let data_consumption;
-
 
             let country = document.getElementsByClassName("country")[actual_select]
             let year = document.getElementsByClassName("year")[actual_select]
@@ -625,6 +631,7 @@ class Select{
                 
                 if (!self.production_data){
                     // TODO: Implementar uma tela de loading
+                    self.loading_screen(actual_select);
                     data = await self.extract_quantity_and_unit_of_resources(country.value, period);
                     self.div_info[actual_select].textContent = data;
                     const country_ = country.selectedOptions[0].textContent;
@@ -648,17 +655,24 @@ class Select{
                 }else{
                     //TODO: implementar uma tela de loading
 
-                    console.log("Entered here");
+                    self.loading_screen(0);
+                    self.loading_screen(1);
+
                     data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, self.production_data);
                     data_consumption = await self.extract_quantity_and_unit_of_resources(country.value, period, self.consumption_data);
 
                     self.div_info[0].textContent = data_production;
                     self.div_info[1].textContent = data_consumption;
 
-                    console.log("data_production: ", data_production);
-                    console.log("data_consumption ", data_consumption);
+                    const data_production_ =  Number(data_production.split(" ")[0]);
+                    const data_consumption_ = Number(data_consumption.split(" ")[0]);
 
-                    if (!Number.isNaN(data_production) && !Number.isNaN(data_consumption)){
+                    console.log("data_production: ", data_production_);
+                    console.log("data_consumption: ", data_consumption_);
+
+                    console.log("data's: ", )
+                    if (!Number.isNaN(data_production_) || !Number.isNaN(data_consumption_)){
+                        
                         if (self.list_of_info[0] != undefined){
                         self.list_of_info[0] = ["production", Number(data_production.split(" ")[0])];
                         }else{  
@@ -669,9 +683,11 @@ class Select{
                             self.list_of_info[1] = ["consumption", Number(data_consumption.split(" ")[0])];
                         }else{  
                             self.list_of_info.push(["consumption", Number(data_consumption.split(" ")[0])]);
-                        }
+                        }  
+                    } else {
+                        self.list_of_info = [];   
+
                     }
-                    
                     console.log(self.list_of_info);
                 }   
             }
@@ -904,6 +920,62 @@ class Select{
         document.body.appendChild(this.tooltip);
     }
 
+    loading_screen(index){
+        const loadingInfo = document.getElementsByClassName("loading")[index];
+
+        let dotCount = 1;
+        let extraMessage = "";
+        let animationStopped = false;
+        let expectedText = "";
+
+        function render() {
+            if (animationStopped) return;
+
+            expectedText =
+            "Loading" + ".".repeat(dotCount) + extraMessage;
+
+            loadingInfo.textContent = expectedText;
+        }
+
+        const observer = new MutationObserver(() => {
+            if (animationStopped) return;
+
+            // If the current text wasn't produced by render(),
+            // something external changed it, so stop the animation.
+            if (loadingInfo.textContent !== expectedText) {
+            animationStopped = true;
+            clearInterval(dotInterval);
+            observer.disconnect();
+            }
+        });
+
+        observer.observe(loadingInfo, {
+            childList: true,
+            characterData: true,
+            subtree: true
+        });
+
+        const dotInterval = setInterval(() => {
+            dotCount = dotCount >= 3 ? 1 : dotCount + 1;
+            render();
+        }, 500);
+
+        setTimeout(() => {
+            if (animationStopped) return;
+
+            extraMessage = " This may take a while";
+            render();
+        }, 40000);
+
+        setTimeout(() => {
+            if (animationStopped) return;
+
+            extraMessage = " Recommended to load the website again";
+            render();
+        }, 75000);
+
+        render();
+    }
 }
 
 
