@@ -151,10 +151,7 @@ class Select{
         document.getElementById("removeBtn")?.addEventListener("click", () => {
             if (this.select_country.length > 2){
 
-                if (this.list_of_info.length === this.select_country.length){
-                    this.list_of_info.pop();
-
-                }
+                this.list_of_info.pop();
 
                 this.select_country[this.select_country.length - 1]?.remove();
                 this.select_year[this.select_year.length - 1]?.remove();

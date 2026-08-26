@@ -1,0 +1,60 @@
+<div id="loading-info"></div>
+
+<script>
+  const loadingInfo = document.getElementById("loading-info");
+
+  let dotCount = 1;
+  let extraMessage = "";
+  let animationStopped = false;
+  let expectedText = "";
+
+  function render() {
+    if (animationStopped) return;
+
+    expectedText =
+      "Loading" + ".".repeat(dotCount) + extraMessage;
+
+    loadingInfo.textContent = expectedText;
+  }
+
+  const observer = new MutationObserver(() => {
+    if (animationStopped) return;
+
+    // If the current text wasn't produced by render(),
+    // something external changed it, so stop the animation.
+    if (loadingInfo.textContent !== expectedText) {
+      animationStopped = true;
+      clearInterval(dotInterval);
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(loadingInfo, {
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
+
+  const dotInterval = setInterval(() => {
+    dotCount = dotCount >= 3 ? 1 : dotCount + 1;
+    render();
+  }, 500);
+
+  setTimeout(() => {
+    if (animationStopped) return;
+
+    extraMessage = " This may take a while";
+    render();
+  }, 5000);
+
+  setTimeout(() => {
+    if (animationStopped) return;
+
+    extraMessage = " Recommended to load the website again";
+    render();
+  }, 10000);
+
+  render();
+
+  //loadingInfo.textContent = "stopped";
+</script>
