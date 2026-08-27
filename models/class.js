@@ -67,7 +67,7 @@ class Select{
         const month =
         (actual_option.value === "option1" || actual_option.value === "option2")
             ? `
-                <select class="month">
+                <select class="month_select">
                     <option>Select Month</option>
                 </select>
             `
@@ -80,11 +80,11 @@ class Select{
         <div class="comparison">
             <div>
                 <label class="label_country">Country:</label>
-                <select class="country">
+                <select class="country_select">
                     <option>Loading...</option>
                 </select>
 
-                <select class="year" id="year1">
+                <select class="year_select" id="year1">
                     <option>Loading...</option>
                 </select>
 
@@ -93,11 +93,11 @@ class Select{
 
             <div>
                 <label class="label_country">Country:</label>
-                <select  class="country">
+                <select  class="country_select">
                     <option>Loading...</option>
                 </select>
 
-                <select class="year" id="year2">
+                <select class="year_select" id="year2">
                     <option>Loading...</option>
                 </select>
 
@@ -116,11 +116,11 @@ class Select{
         <div class="comparison">
         <div>
             <label>Country:</label>
-            <select class="country">
+            <select class="country_select">
                 <option>Loading...</option>
             </select>
 
-            <select class="year" id="year1">
+            <select class="year_select" id="year1">
                 <option>Loading...</option>
             </select>
 
@@ -186,9 +186,9 @@ class Select{
         });
         
         this.info
-        this.select_country = document.getElementsByClassName("country");
-        this.select_year = document.getElementsByClassName("year");
-        this.select_month = document.getElementsByClassName("month");
+        this.select_country = document.getElementsByClassName("country_select");
+        this.select_year = document.getElementsByClassName("year_select");
+        this.select_month = document.getElementsByClassName("month_select");
         this.lable_country = document.getElementsByClassName("label_country");
     }
 
@@ -241,7 +241,6 @@ class Select{
                 this.select_country[0].value = this.countryRegionID;
             } else if(Array.isArray(this.countryRegionID)){
                 for(let x= 0; x<this.countryRegionID.length; x++){
-                    
                     this.select_country[x].value = this.countryRegionID[x];
 
                 } 
@@ -471,7 +470,7 @@ class Select{
     }
     
     populate_month(){
-        if (document.querySelector(".month")){
+        if (this.select_month){
 
             for (let i = 0; i < this.select_month.length; i++) {
                 const select = this.select_month[i];
@@ -595,14 +594,18 @@ class Select{
             let data_production;
             let data_consumption;
 
-            let country = document.getElementsByClassName("country")[actual_select]
-            let year = document.getElementsByClassName("year")[actual_select]
-            let month = document.getElementsByClassName("month")[actual_select] 
+            let country = document.getElementsByClassName("country_select")[actual_select]
+            let year = document.getElementsByClassName("year_select")[actual_select]
+            let month = document.getElementsByClassName("month_select")[actual_select] 
+
+            console.log(country);
+            console.log(year);
+            console.log(month);
 
             let notSelected;
-            if (document.querySelector(".month")){
+            if (document.getElementsByClassName("month_select")){
                 notSelected = [country, year, month].filter(
-                element => element.selectedOptions[0].textContent.startsWith("Select")  
+                element => element.selectedOptions[0].textContent.startsWith("Select")
                 );
             }else{
                 notSelected = [country, year].filter(
@@ -612,7 +615,7 @@ class Select{
             
 
             if (notSelected.length >= 1) {
-                const names = notSelected.map(element => element.className);
+                const names = notSelected.map(element => element.className.replace("_select", ""));
 
                 data = "Not selected: " + (
                     names.length === 1
@@ -633,7 +636,7 @@ class Select{
                 
 
             }else{
-                if (document.querySelector(".month")){
+                if (document.getElementsByClassName("month_select")){
                     period = `${year.value}-${String(month.value).padStart(2, "0")}`;
 
                 } else {
@@ -724,7 +727,7 @@ class Select{
 
             })
 
-            if (document.querySelector(".month")){
+            if (document.getElementsByClassName(".month_select")){
                 self.select_month[actual_select]?.addEventListener("change", () => {
                     listener(actual_select);
                 
@@ -846,12 +849,12 @@ class Select{
     }
 
     put_listener_on_select(){
-
+        // TODO: adjust this
         let list_of_selected_countries = [];
         document.getElementById("mySelect").addEventListener("change", () => {
 
             if (document.getElementById("country1")){
-                const count = document.querySelectorAll(".country").length;
+                const count = document.getElementsByClassName(".country_select").length;
                 for (let x = 1; x<=count ; x++){
                     list_of_selected_countries.push(document.getElementById(`country${x}`).value);
                 }
@@ -878,9 +881,9 @@ class Select{
     add_country(){
 
         const month =
-        (document.querySelector(".month"))
+        (document.getElementsByClassName("month_select"))
             ? `
-                <select class="month">
+                <select class="month_select">
                     <option>Select Month</option>
                 </select>
             `
@@ -890,11 +893,11 @@ class Select{
         <div class="comparison">
             <div>
                 <label class="label_country">Country:</label>
-                <select class="country">
+                <select class="country_select">
                     <option>Select Country</option>
                 </select>
 
-                <select class="year">
+                <select class="year_select">
                     <option>Select Country</option>
                 </select>
 
@@ -907,7 +910,7 @@ class Select{
         container.insertAdjacentHTML('beforeend', comparisonHTML);
         this.populate_country();
         this.populate_year();
-        if (document.querySelector(".month")){
+        if (document.getElementsByClassName("month_select")){
             this.populate_month();
         }
         this.populate_container2_by_querying_API();
