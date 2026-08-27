@@ -81,7 +81,7 @@ class Select{
             <div>
                 <label class="label_country">Country:</label>
                 <select class="country">
-                    <option>Select Country</option>
+                    <option>Loading...</option>
                 </select>
 
                 <select class="year" id="year1">
@@ -117,7 +117,7 @@ class Select{
         <div>
             <label>Country:</label>
             <select class="country">
-                <option>Select Country</option>
+                <option>Loading...</option>
             </select>
 
             <select class="year" id="year1">
