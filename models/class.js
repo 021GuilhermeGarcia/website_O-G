@@ -85,7 +85,7 @@ class Select{
                 </select>
 
                 <select class="year" id="year1">
-                    <option>Select Country</option>
+                    <option>Loading...</option>
                 </select>
 
                 ${month}
@@ -98,7 +98,7 @@ class Select{
                 </select>
 
                 <select class="year" id="year2">
-                    <option>Select Year</option>
+                    <option>Loading...</option>
                 </select>
 
                 ${month}
@@ -121,7 +121,7 @@ class Select{
             </select>
 
             <select class="year" id="year1">
-                <option>Select Country</option>
+                <option>Loading...</option>
             </select>
 
             <button id="compareBtn">Compare</button>
@@ -631,10 +631,15 @@ class Select{
                 
                 if (!self.production_data){
                     // TODO: Implementar uma tela de loading
+                    
+                    self.list_of_info?.splice(actual_select,1);
                     self.loading_screen(actual_select);
+            
+                    //await new Promise(resolve => setTimeout(resolve, 10000));
+
                     data = await self.extract_quantity_and_unit_of_resources(country.value, period);
                     self.div_info[actual_select].textContent = data;
-                    const country_ = country.selectedOptions[0].textContent;
+                    const country_ = country.selectedOptions[0].textContent;  
                     const quantity_ = Number(data.split(" ")[0]);
 
                     if (self.list_of_info[actual_select] != undefined){
@@ -654,9 +659,12 @@ class Select{
                     }
                 }else{
                     //TODO: implementar uma tela de loading
-
+                    
+                    self.list_of_info?.splice(0,2);
+                    
                     self.loading_screen(0);
                     self.loading_screen(1);
+                    //await new Promise(resolve => setTimeout(resolve, 10000));
 
                     data_production = await self.extract_quantity_and_unit_of_resources(country.value, period, self.production_data);
                     data_consumption = await self.extract_quantity_and_unit_of_resources(country.value, period, self.consumption_data);
