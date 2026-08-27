@@ -94,7 +94,7 @@ class Select{
             <div>
                 <label class="label_country">Country:</label>
                 <select  class="country">
-                    <option>Select Country</option>
+                    <option>Loading...</option>
                 </select>
 
                 <select class="year" id="year2">
@@ -214,10 +214,22 @@ class Select{
             for (let i = 0; i < this.select_country.length; i++){
                 const select = this.select_country[i];
 
-                if (select.options.length > 1) continue
+                console.log(select.options.length);
+                if (select.options.length > 1){
+                    continue
+                }else{
+                    select.remove(0);
+                    const option = document.createElement("option");
+                    option.textContent = "Select Country";
+                    option.value="";
+                    option.selected = true;
+                    select.appendChild(option);
+
+                }
                 
                 for (let c = 0; c < countryDetails.length; c++){
                     const option = document.createElement("option");
+                    
                     option.value = countryDetails[c].iso3;
                     option.textContent = countryDetails[c].name;
                     select.appendChild(option);
