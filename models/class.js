@@ -23,7 +23,7 @@ class Select{
         this.set_API_parameter();
         this.starter_async_fun = this.init().then(() => {
             this.populate_container2_by_querying_API();
-            this.put_listener_on_select();
+            //this.put_listener_on_select();
         }); 
 
     }
@@ -214,7 +214,6 @@ class Select{
             for (let i = 0; i < this.select_country.length; i++){
                 const select = this.select_country[i];
 
-                console.log(select.options.length);
                 if (select.options.length > 1){
                     continue
                 }else{
@@ -286,11 +285,13 @@ class Select{
                 this.modify_param_var("annual", "2", "54", "TBPD");
                 break;
             case 'option5':
-                this.production_data = this.modify_param_var("annual", "1", "54", "TBPD", true);;
-                this.consumption_data = this.modify_param_var("annual", "2", "54", "TBPD", true);;
+                this.production_data = this.modify_param_var("annual", "1", "54", "TBPD", true);
+                console.log(this.production_data);
+                this.consumption_data = this.modify_param_var("annual", "2", "54", "TBPD", true);
+                console.log(this.consumption_data);
                 // production and consumption
                 break;
-            case 'option6'://
+            case 'option6':
                 this.modify_param_var("annual", "1", "26", "BCF");
                 break;
             case 'option7':
@@ -367,15 +368,22 @@ class Select{
 
         try {
             if (!this.production_data){
+                console.log("!this.production");
                 await define_first_and_last_date();
 
             }else{
                 
+                console.log("entered this.production");
                 const period_date_production = await define_first_and_last_date(this.production_data);
                 const period_date_consumption = await define_first_and_last_date(this.consumption_data);
 
+                console.log("period_date_production: ", period_date_production);
+                console.log("period_date_consumption: ", period_date_consumption);
+
                 this.date_beginning = period_date_production[0] > period_date_consumption[0] ? period_date_production[0] : period_date_consumption[0];
                 this.date_end = period_date_production[1] < period_date_consumption[1] ? period_date_production[1] : period_date_consumption[1];
+
+                console.log("this.date_beginning, this.date_end", this.date_beginning, this.date_end);
 
                 return;
             }
@@ -385,6 +393,7 @@ class Select{
             console.error(err);
             return null;
         }
+
     }
 
     async extract_quantity_and_unit_of_resources(countryIsoId, targetPeriod, param = this.param){
@@ -470,7 +479,7 @@ class Select{
     }
     
     populate_month(){
-        if (this.select_month){
+        if (this.select_month.length >=1){
 
             for (let i = 0; i < this.select_month.length; i++) {
                 const select = this.select_month[i];
@@ -598,12 +607,12 @@ class Select{
             let year = document.getElementsByClassName("year_select")[actual_select]
             let month = document.getElementsByClassName("month_select")[actual_select] 
 
-            console.log(country);
-            console.log(year);
-            console.log(month);
+            //console.log(country);
+            //console.log(year);
+            //console.log(month);
 
             let notSelected;
-            if (document.getElementsByClassName("month_select")){
+            if (document.getElementsByClassName("month_select").length >= 1){
                 notSelected = [country, year, month].filter(
                 element => element.selectedOptions[0].textContent.startsWith("Select")
                 );
@@ -636,7 +645,7 @@ class Select{
                 
 
             }else{
-                if (document.getElementsByClassName("month_select")){
+                if (document.getElementsByClassName("month_select").length >=1){
                     period = `${year.value}-${String(month.value).padStart(2, "0")}`;
 
                 } else {
@@ -690,10 +699,6 @@ class Select{
                     const data_production_ =  Number(data_production.split(" ")[0]);
                     const data_consumption_ = Number(data_consumption.split(" ")[0]);
 
-                    console.log("data_production: ", data_production_);
-                    console.log("data_consumption: ", data_consumption_);
-
-                    console.log("data's: ", )
                     if (!Number.isNaN(data_production_) || !Number.isNaN(data_consumption_)){
                         
                         if (self.list_of_info[0] != undefined){
@@ -881,7 +886,7 @@ class Select{
     add_country(){
 
         const month =
-        (document.getElementsByClassName("month_select"))
+        (document.getElementsByClassName("month_select").length >=1)
             ? `
                 <select class="month_select">
                     <option>Select Month</option>
@@ -1002,10 +1007,10 @@ class Select{
 }
 
 
-const s = new Select(
+/*const s = new Select(
     "container",
     "container2",
     "container3",
     "mySelect",
     "BRA"
-)
+)*/
