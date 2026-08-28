@@ -192,7 +192,7 @@ class Select{
         this.lable_country = document.getElementsByClassName("label_country");
     }
 
-    populate_country(){
+    populate_country(set_first_option = true){
         //TODO: verificar pq funciona o "d3."
         Promise.all([
             d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"),
@@ -236,13 +236,8 @@ class Select{
                 }
             }
 
-            if (this.countryRegionID && typeof this.countryRegionID === "string"){
+            if (this.countryRegionID != "" && set_first_option === true){
                 this.select_country[0].value = this.countryRegionID;
-            } else if(Array.isArray(this.countryRegionID)){
-                for(let x= 0; x<this.countryRegionID.length; x++){
-                    this.select_country[x].value = this.countryRegionID[x];
-
-                } 
             }
         });
     }
@@ -853,36 +848,6 @@ class Select{
         document.body.appendChild(div);
     }
 
-    put_listener_on_select(){
-        // TODO: adjust this
-        let list_of_selected_countries = [];
-        document.getElementById("mySelect").addEventListener("change", () => {
-
-            if (document.getElementById("country1")){
-                const count = document.getElementsByClassName(".country_select").length;
-                for (let x = 1; x<=count ; x++){
-                    list_of_selected_countries.push(document.getElementById(`country${x}`).value);
-                }
-
-                new Select(
-                "container",
-                "container2",
-                "container3",
-                "mySelect",
-                list_of_selected_countries
-                )
-            }else{
-                new Select(
-                "container",
-                "container2",
-                "container3",
-                "mySelect",
-                ""
-                )
-            }
-        });
-    }
-
     add_country(){
 
         const month =
@@ -913,10 +878,10 @@ class Select{
 
         const container = document.getElementById("country_to_be_added");
         container.insertAdjacentHTML('beforeend', comparisonHTML);
-        this.populate_country();
+        this.populate_country(false);
         this.populate_year();
         if (document.getElementsByClassName("month_select")){
-            this.populate_month();
+            this.populate_month(); 
         }
         this.populate_container2_by_querying_API();
 

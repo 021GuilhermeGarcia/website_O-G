@@ -42,14 +42,22 @@ d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(w
       const name = d.properties.name || "Unknown";
       const iso3 = d.id;
       showMessage(`${name} selected (${iso3})`);
+
       const country_alpha_3 = countries_.numericToAlpha3(`${iso3}`);
-      new Select(
+
+      if (document.getElementsByClassName("country_select").length >=1){
+        document.getElementsByClassName("country_select")[0].value = country_alpha_3;
+
+      }else{
+        new Select(
         "container",
         "container2",
         "container3",
         "mySelect",
         country_alpha_3
-      )
+        )
+      }
+      
     });
 });
 
