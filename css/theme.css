@@ -1,0 +1,62 @@
+/* ============================================================
+   Shared site theme
+   Loaded by every page so the header/nav and color language
+   stay consistent, even when a page has its own extra styles.
+   ============================================================ */
+
+:root {
+    /* Core palette */
+    --navy-deep: #0b1d2e;
+    --navy: #14293a;
+    --navy-mid: #1f4e79;
+    --navy-hover: #2b6aa3;
+    --accent: #4fd1c5;
+    --accent-warm: #d97757;
+
+    /* Text */
+    --ink: #1a2b36;
+    --ink-light: #eaf2f5;
+    --muted: #7fa3b3;
+
+    /* Surfaces */
+    --bg-page: #f4f6f7;
+    --card-bg: #ffffff;
+    --border: #d8e0e3;
+
+    /* Type */
+    --font-body: Arial, Helvetica, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--ink);
+}
+
+/* ---------- Header / nav (shared across all pages) ---------- */
+header {
+    background-color: var(--navy-deep);
+    padding: 15px 30px;
+}
+
+nav {
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    color: var(--ink-light);
+    text-decoration: none;
+    font-weight: bold;
+    font-family: var(--font-body);
+    letter-spacing: 0.02em;
+    transition: color 0.15s ease;
+}
+
+nav a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}

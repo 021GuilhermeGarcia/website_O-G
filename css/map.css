@@ -1,19 +1,20 @@
 :root{
---ocean: #0b1d2e;
+/* Map-specific tones (falls back to shared theme.css tokens where they overlap) */
+--ocean: var(--navy-deep, #0b1d2e);
 --ocean-deep: #081522;
 --land: #1f3b4d;
 --land-hover: #2f6f8f;
---land-selected: #d97757;
---border: #0b1d2e;
---ink: #eaf2f5;
+--land-selected: var(--accent-warm, #d97757);
+--map-border: var(--navy-deep, #0b1d2e);
 --muted: #7fa3b3;
---accent: #4fd1c5;
+--map-ink: var(--ink-light, #eaf2f5);      /* this page is dark, so text stays light */
+--map-accent: var(--accent, #4fd1c5);
 }
 html,body{
 margin:0; padding:0; height:100%;
 background: radial-gradient(ellipse at center, var(--ocean) 0%, var(--ocean-deep) 100%);
 font-family: 'Georgia', 'Iowan Old Style', serif;
-color: var(--ink);
+color: var(--map-ink);
 overflow-x: hidden;
 overflow-y: auto;
 }
@@ -24,12 +25,12 @@ font-size:1.3rem; font-weight:400; letter-spacing:0.08em;
 text-transform:uppercase; color:var(--muted);
 z-index:5;
 }
-h1 span{ color:var(--accent); }
+h1 span{ color:var(--map-accent); }
 svg{ width:100%; height:100%; display:block; cursor:grab; }
 svg:active{ cursor:grabbing; }
 path.country{
 fill: var(--land);
-stroke: var(--border);
+stroke: var(--map-border);
 stroke-width: 0.5;
 transition: fill 0.15s ease;
 cursor:pointer;
@@ -38,27 +39,27 @@ path.country:hover{ fill: var(--land-hover); }
 path.country.selected{ fill: var(--land-selected); }
 
 #controls{
-position:absolute; bottom:24px; right:24px; z-index:5;
+position:absolute; bottom:64px; right:24px; z-index:5;
 display:flex; flex-direction:column; gap:8px;
 }
 #controls button{
-width:38px; height:38px;
+width:38px; height:48px;
 background: rgba(234,242,245,0.08);
 border:1px solid rgba(234,242,245,0.25);
-color: var(--ink);
+color: var(--map-ink);
 font-size:1.1rem;
 border-radius:6px;
 cursor:pointer;
 backdrop-filter: blur(4px);
 }
-#controls button:hover{ background: rgba(79,209,197,0.25); border-color: var(--accent); }
+#controls button:hover{ background: rgba(79,209,197,0.25); border-color: var(--map-accent); }
 
 #msgbox{
 position:absolute; top:24px; right:24px; z-index:6;
 min-width:220px;
 padding:14px 18px;
 background: rgba(15,30,42,0.92);
-border:1px solid var(--accent);
+border:1px solid var(--map-accent);
 border-radius:8px;
 font-size:1rem;
 letter-spacing:0.02em;
@@ -71,4 +72,154 @@ pointer-events:none;
 #msgbox .label{
 display:block; font-size:0.7rem; letter-spacing:0.15em;
 text-transform:uppercase; color:var(--muted); margin-bottom:4px;
+}
+/* ---------- Comparison controls & chart (injected by page1.js) ---------- */
+
+#container, #container2 {
+    color: var(--map-ink);
+    padding: 0 24px;
+    font-family: var(--font-body, Arial, sans-serif);
+}
+
+.comparison {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    row-gap: 12px;
+    margin: 6px 0;
+}
+
+.group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Countries added via "Add country" stack in their own column instead
+   of fighting for space in the single-line row above them */
+#country_to_be_added {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+}
+
+#country_to_be_added .comparison {
+    justify-content: center;
+}
+
+select {
+    padding: 4px 6px;
+    max-width: 260px;
+    background: var(--land);
+    color: var(--map-ink);
+    border: 1px solid var(--map-border);
+    border-radius: 4px;
+}
+
+.comparison button {
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--map-ink);
+    border: 1.5px solid var(--map-accent);
+    border-radius: 20px;
+    font-family: var(--font-body, Arial, sans-serif);
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.comparison button:hover {
+    background: rgba(79, 209, 197, 0.15);
+    box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.12);
+    transform: translateY(-1px);
+}
+
+.comparison button:active {
+    transform: translateY(0);
+}
+
+#addBtn {
+    border-color: #6fcf97;
+    color: #6fcf97;
+}
+#addBtn:hover {
+    background: rgba(111, 207, 151, 0.15);
+    box-shadow: 0 0 0 3px rgba(111, 207, 151, 0.12);
+}
+
+#removeBtn {
+    border-color: var(--accent-warm, #d97757);
+    color: var(--accent-warm, #d97757);
+}
+#removeBtn:hover {
+    background: rgba(217, 119, 87, 0.15);
+    box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.12);
+}
+
+#compareBtn {
+    background: var(--map-accent);
+    color: var(--ocean-deep);
+    border-color: var(--map-accent);
+}
+#compareBtn:hover {
+    background: var(--map-accent);
+    opacity: 0.85;
+    box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.25);
+}
+
+#controls ~ button {
+    padding: 4px 10px;
+    background: var(--land);
+    color: var(--map-ink);
+    border: 1px solid var(--map-border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#controls ~ button:hover {
+    background: var(--land-hover);
+}
+
+#container3 {
+    display: block;
+    margin: 20px auto;
+    max-width: 900px;
+    cursor: pointer;
+}
+
+/* ---------- #mySelect (report type picker) ---------- */
+
+label[for="mySelect"] {
+    display: block;
+    text-align: center;
+}
+
+#mySelect {
+    display: block;
+    width: max-content;
+    max-width: 90vw;
+    margin: 24px auto;
+    padding: 8px 14px;
+    background: var(--land);
+    color: var(--map-ink);
+    border: 1px solid var(--map-border);
+    border-radius: 6px;
+    font-family: var(--font-body, Arial, sans-serif);
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+#mySelect:hover {
+    border-color: var(--map-accent);
+}
+
+table {
+    margin: 0 auto;
 }

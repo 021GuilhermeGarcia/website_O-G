@@ -23,7 +23,7 @@ class Select{
         this.set_API_parameter();
         this.starter_async_fun = this.init().then(() => {
             this.populate_container2_by_querying_API();
-            //this.put_listener_on_select();
+            
         }); 
 
     }
@@ -79,7 +79,7 @@ class Select{
         const comparisonHTML = !only_one_country_and_one_year ? `
         <div class="comparison">
             <div>
-                <label class="label_country">Country:</label>
+                <label class="label_country"></label>
                 <select class="country_select">
                     <option>Loading...</option>
                 </select>
@@ -92,7 +92,7 @@ class Select{
             </div>
 
             <div>
-                <label class="label_country">Country:</label>
+                <label class="label_country"></label>
                 <select  class="country_select">
                     <option>Loading...</option>
                 </select>
@@ -115,7 +115,7 @@ class Select{
         ` :`
         <div class="comparison">
         <div>
-            <label>Country:</label>
+            <label></label>
             <select class="country_select">
                 <option>Loading...</option>
             </select>
@@ -136,10 +136,12 @@ class Select{
             
             if (this.list_of_info.length < 2){
                 if(!this.production_data){
-                    alert("At least two countries required with all fields fulfilled with available! Let all components load.");
+                    alert("At least two countries required with all fields fulfilled with available data! Let all components load.");
+                    
                 }
                 else{
-                    alert("Choose a available year or let all components load.");
+                    alert("Fulfill all fields, choose an available year and let all components load.");
+                    
                 }
             }else{
                 const unit_to_be_selected = this.production_data ? this.production_data["facets[unit][]"] : this.param["facets[unit][]"];
@@ -862,7 +864,7 @@ class Select{
         const comparisonHTML = `
         <div class="comparison">
             <div>
-                <label class="label_country">Country:</label>
+                <label class="label_country"></label>
                 <select class="country_select">
                     <option>Select Country</option>
                 </select>
@@ -904,7 +906,7 @@ class Select{
         text.textContent =
             "\nThe totalitarian info of these countries' data are defined through " +
             "the website 'eia.gov'.\n" +
-            "To check them, go to 'Geography > International > Data'.";
+            "To check them, go to 'International > Data'.";
 
         text.style.whiteSpace = "pre-line";
         this.tooltip.appendChild(question);

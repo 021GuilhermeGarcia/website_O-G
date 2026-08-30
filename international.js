@@ -1,6 +1,8 @@
 
 import countries_ from "https://esm.sh/i18n-iso-countries@7";
 
+let first_time = true;
+
 const svg = d3.select("#map");
 const width = window.innerWidth, height = window.innerHeight;
 const g = svg.append("g");
@@ -41,12 +43,13 @@ d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(w
       d3.select(this).classed("selected", true);
       const name = d.properties.name || "Unknown";
       const iso3 = d.id;
-      showMessage(`${name} selected (${iso3})`);
+      showMessage(`${name} selected`);
 
       const country_alpha_3 = countries_.numericToAlpha3(`${iso3}`);
 
       if (document.getElementsByClassName("country_select").length >=1){
         document.getElementsByClassName("country_select")[0].value = country_alpha_3;
+        document.getElementsByClassName("country_select")[0].dispatchEvent(new Event("change"));
 
       }else{
         new Select(
@@ -57,7 +60,21 @@ d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(w
         country_alpha_3
         )
       }
-      
+
+      if (first_time){
+        setTimeout(() => {
+          const select = document.getElementsByClassName("country_select")[0];
+
+          if (select) {
+            select.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+          }
+        }, 0);
+
+        first_time = false;
+      }
     });
 });
 
