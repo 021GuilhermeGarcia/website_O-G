@@ -60,3 +60,33 @@ nav a:hover {
     color: var(--accent);
     text-decoration: underline;
 }
+
+.site-footer {
+    margin-top: 60px;
+    padding: 25px 20px;
+    text-align: center;
+    background: #000;
+    color: #fff;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+}
+
+.site-footer p {
+    margin: 0 0 10px;
+}
+
+body.index_page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body.index_page .page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body.index_page main {
+    flex: 1;
+}

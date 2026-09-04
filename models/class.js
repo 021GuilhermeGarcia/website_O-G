@@ -847,7 +847,7 @@ class Select{
         div.appendChild(table);
 
         // Insert the div into the page
-        document.body.appendChild(div);
+        document.getElementById("table_content").appendChild(div);
     }
 
     add_country(){
